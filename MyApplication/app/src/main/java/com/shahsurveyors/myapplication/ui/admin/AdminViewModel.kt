@@ -356,19 +356,46 @@ class AdminViewModel(
 
             try {
                 val newDoc = firestore.collection("users").document()
+                val empId = "EMP${(100..999).random()}"
                 val userData = hashMapOf(
                     "name" to name.trim(),
                     "phone" to phone.trim(),
                     "department" to dept.trim().uppercase(),
                     "role" to role.trim().lowercase(),
                     "access" to access.trim().uppercase(),
-                    "employeeId" to "EMP${(100..999).random()}",
+                    "employeeId" to empId,
                     "active" to true,
                     "approved" to true,
                     "createdAt" to System.currentTimeMillis()
                 )
                 newDoc.set(userData).await()
                 fetchAdminData()
+
+                // Instant non-blocking Google Sheets sync for new employee tab
+                launch(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val payload = mapOf<String, Any>(
+                            "action" to "CREATE_EMPLOYEE",
+                            "empId" to empId,
+                            "employeeId" to empId,
+                            "EmployeeID" to empId,
+                            "name" to name.trim(),
+                            "staffName" to name.trim(),
+                            "EmployeeName" to name.trim(),
+                            "designation" to role.trim().uppercase(),
+                            "role" to role.trim(),
+                            "department" to dept.trim().uppercase(),
+                            "phone" to phone.trim(),
+                            "joiningDate" to java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.ENGLISH).format(java.util.Date()),
+                            "siteName" to dept.trim().uppercase(),
+                            "projectSite" to dept.trim().uppercase(),
+                            "status" to "ACTIVE"
+                        )
+                        RetrofitClient.api.handleAction(payload)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "Failed to create user"
             } finally {
@@ -437,6 +464,21 @@ class AdminViewModel(
                     .await()
 
                 pendingExpenses.removeAll { it.id == expenseId }
+
+                // Instant non-blocking Google Sheets sync for updated expense status
+                launch(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val payload = mapOf<String, Any>(
+                            "action" to "EXPENSE_SYNC",
+                            "expenseId" to expenseId,
+                            "id" to expenseId,
+                            "status" to status
+                        )
+                        RetrofitClient.api.handleAction(payload)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "Unable to update expense"
             } finally {

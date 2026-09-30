@@ -2,6 +2,7 @@ package com.shahsurveyors.myapplication.ui.finance
 
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -67,6 +68,51 @@ class SalaryViewModel(
 
     var lastGeneratedSlipFile by mutableStateOf<File?>(null)
         private set
+
+    var isSyncingToSheets by mutableStateOf(false)
+        private set
+
+    var syncProgressStatus by mutableStateOf("Ready to sync")
+        private set
+
+    var syncProgressPercent by mutableFloatStateOf(0f)
+        private set
+
+    var lastSyncResult by mutableStateOf<com.shahsurveyors.myapplication.data.SyncResult?>(null)
+        private set
+
+    var showSyncDialog by mutableStateOf(false)
+
+    private val dataSyncRepository: com.shahsurveyors.myapplication.data.DataSyncRepository = com.shahsurveyors.myapplication.data.DataSyncRepository()
+
+    fun syncAllDataToGoogleSheets(currentUid: String, isAdmin: Boolean) {
+        if (isSyncingToSheets) return
+        viewModelScope.launch {
+            isSyncingToSheets = true
+            showSyncDialog = true
+            syncProgressPercent = 0.05f
+            syncProgressStatus = "Connecting to Firestore..."
+            try {
+                val result = dataSyncRepository.syncAllFirestoreDataToGoogleSheets { status, progress ->
+                    syncProgressStatus = status
+                    syncProgressPercent = progress
+                }
+                lastSyncResult = result
+                loadPayrollData(currentUid, isAdmin)
+            } catch (e: Exception) {
+                lastSyncResult = com.shahsurveyors.myapplication.data.SyncResult(
+                    isSuccess = false,
+                    message = e.localizedMessage ?: "Sync error occurred"
+                )
+            } finally {
+                isSyncingToSheets = false
+            }
+        }
+    }
+
+    fun dismissSyncDialog() {
+        showSyncDialog = false
+    }
 
     fun setMonth(yearMonth: String, currentUid: String, isAdmin: Boolean) {
         selectedYearMonth = yearMonth
@@ -144,32 +190,29 @@ class SalaryViewModel(
 
                 // 2. Fetch all approved advance requests
                 val allAdvances = salaryRepository.getAllAdvanceRequests()
-                val approvedAdvances = allAdvances.filter { it.status == "APPROVED" }
+                val approvedAdvances = allAdvances.filter { it.status.equals("APPROVED", ignoreCase = true) }
 
                 // Update pending advances for Admin review
                 pendingAdvanceRequests.clear()
-                pendingAdvanceRequests.addAll(allAdvances.filter { it.status == "PENDING" })
+                pendingAdvanceRequests.addAll(allAdvances.filter { it.status.equals("PENDING", ignoreCase = true) })
 
                 // Update employee's own advances
                 myAdvanceRequests.clear()
                 myAdvanceRequests.addAll(allAdvances.filter { it.employeeUid == currentUid })
 
-                // 3. Query all attendance records for this month
-                val monthStart = "$selectedYearMonth-01"
-                val monthEnd = "$selectedYearMonth-31"
-                val attSnapshot = firestore.collection("attendance")
-                    .whereGreaterThanOrEqualTo("date", monthStart)
-                    .whereLessThanOrEqualTo("date", monthEnd)
-                    .get()
-                    .await()
-                val attDocs = attSnapshot.documents
+                // 3. Query all attendance records for this month (in-memory safe filtering)
+                val attSnapshot = firestore.collection("attendance").get().await()
+                val attDocs = attSnapshot.documents.filter { doc ->
+                    val docDate = doc.getString("date") ?: ""
+                    docDate.startsWith(selectedYearMonth)
+                }
 
-                // 4. Query all approved leaves for this month
-                val leavesSnapshot = firestore.collection("leaves")
-                    .whereEqualTo("status", "APPROVED")
-                    .get()
-                    .await()
-                val leavesList = leavesSnapshot.toObjects(LeaveRequest::class.java)
+                // 4. Query all approved leaves for this month (combining leaveRequests and leaves)
+                val leavesSnapshot = firestore.collection("leaveRequests").get().await()
+                val legacyLeavesSnapshot = firestore.collection("leaves").get().await()
+                val leavesList = (leavesSnapshot.toObjects(LeaveRequest::class.java) + legacyLeavesSnapshot.toObjects(LeaveRequest::class.java))
+                    .filter { it.status.equals("APPROVED", ignoreCase = true) }
+                    .distinctBy { it.id.ifBlank { "${it.employeeUid}_${it.startDate}" } }
 
                 if (isAdmin) {
                     val profilesByEmployee = allProfiles.groupBy { it.employeeUid }
@@ -186,9 +229,7 @@ class SalaryViewModel(
                         val empId = userDoc.getString("employeeId") ?: userDoc.getString("id") ?: uid.take(6).uppercase()
                         val dept = userDoc.getString("department") ?: userDoc.getString("dept") ?: "SURVEY"
                         val role = userDoc.getString("role") ?: "STAFF"
-                        val salaryFallback = userDoc.getDouble("monthlySalary")
-                            ?: userDoc.getDouble("salary")
-                            ?: 15000.0
+                        val salaryFallback = (userDoc.get("monthlySalary") ?: userDoc.get("salary"))?.toString()?.toDoubleOrNull() ?: 15000.0
 
                         val employeeProfiles = profilesByEmployee[uid] ?: emptyList()
                         val employeeAdvances = approvedAdvances.filter { it.employeeUid == uid }
@@ -196,7 +237,7 @@ class SalaryViewModel(
                         // Calculate attendance for this employee
                         val employeePunches = attDocs.filter {
                             val docUid = it.getString("employeeUid") ?: it.getString("uid") ?: it.getString("userUid") ?: ""
-                            val docName = it.getString("staffName") ?: it.getString("name") ?: ""
+                            val docName = it.getString("staffName") ?: it.getString("name") ?: it.getString("EmployeeName") ?: ""
                             docUid == uid || docName.equals(name, ignoreCase = true)
                         }
 
@@ -206,11 +247,11 @@ class SalaryViewModel(
 
                         for ((_, punches) in punchesByDate) {
                             val inPunch = punches.find {
-                                val t = it.getString("type") ?: it.getString("action") ?: ""
+                                val t = it.getString("type") ?: it.getString("action") ?: it.getString("punchType") ?: ""
                                 t.contains("IN", ignoreCase = true)
                             }
                             val outPunch = punches.find {
-                                val t = it.getString("type") ?: it.getString("action") ?: ""
+                                val t = it.getString("type") ?: it.getString("action") ?: it.getString("punchType") ?: ""
                                 t.contains("OUT", ignoreCase = true)
                             }
                             if (inPunch != null && outPunch != null) {
@@ -258,13 +299,11 @@ class SalaryViewModel(
                     val empId = userDoc.getString("employeeId") ?: userDoc.getString("id") ?: currentUid.take(6).uppercase()
                     val dept = userDoc.getString("department") ?: userDoc.getString("dept") ?: "SURVEY"
                     val role = userDoc.getString("role") ?: "STAFF"
-                    val salaryFallback = userDoc.getDouble("monthlySalary")
-                        ?: userDoc.getDouble("salary")
-                        ?: 15000.0
+                    val salaryFallback = (userDoc.get("monthlySalary") ?: userDoc.get("salary"))?.toString()?.toDoubleOrNull() ?: 15000.0
 
                     val myPunches = attDocs.filter {
                         val docUid = it.getString("employeeUid") ?: it.getString("uid") ?: it.getString("userUid") ?: ""
-                        val docName = it.getString("staffName") ?: it.getString("name") ?: ""
+                        val docName = it.getString("staffName") ?: it.getString("name") ?: it.getString("EmployeeName") ?: ""
                         docUid == currentUid || docName.equals(name, ignoreCase = true)
                     }
 
@@ -274,11 +313,11 @@ class SalaryViewModel(
 
                     for ((_, punches) in punchesByDate) {
                         val inPunch = punches.find {
-                            val t = it.getString("type") ?: it.getString("action") ?: ""
+                            val t = it.getString("type") ?: it.getString("action") ?: it.getString("punchType") ?: ""
                             t.contains("IN", ignoreCase = true)
                         }
                         val outPunch = punches.find {
-                            val t = it.getString("type") ?: it.getString("action") ?: ""
+                            val t = it.getString("type") ?: it.getString("action") ?: it.getString("punchType") ?: ""
                             t.contains("OUT", ignoreCase = true)
                         }
                         if (inPunch != null && outPunch != null) {

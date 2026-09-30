@@ -268,24 +268,15 @@ class SalaryRepository(
                 val email = userDoc.getString("email") ?: ""
                 val photoUrl = userDoc.getString("photoUrl") ?: userDoc.getString("dpUrl") ?: ""
                 val active = userDoc.getBoolean("active") ?: true
-                val monthlySalaryFallback = userDoc.getDouble("monthlySalary")
-                    ?: userDoc.getDouble("salary")
-                    ?: 15000.0
+                val monthlySalaryFallback = (userDoc.get("monthlySalary") ?: userDoc.get("salary"))?.toString()?.toDoubleOrNull() ?: 15000.0
 
-                // 2. Attendance punches in this month
-                val monthStart = "$yearMonth-01"
-                val monthEnd = "$yearMonth-31"
-
-                val attDocs = firestore.collection("attendance")
-                    .whereGreaterThanOrEqualTo("date", monthStart)
-                    .whereLessThanOrEqualTo("date", monthEnd)
-                    .get()
-                    .await()
-
-                val userAttDocs = attDocs.documents.filter {
-                    val docUid = it.getString("employeeUid") ?: it.getString("uid") ?: it.getString("userUid") ?: ""
-                    val docName = it.getString("staffName") ?: it.getString("name") ?: ""
-                    docUid == employeeUid || docName.equals(name, ignoreCase = true)
+                // 2. Attendance punches for this user in this month (in-memory safe filtering)
+                val attSnapshot = firestore.collection("attendance").get().await()
+                val userAttDocs = attSnapshot.documents.filter { doc ->
+                    val docUid = doc.getString("employeeUid") ?: doc.getString("uid") ?: doc.getString("userUid") ?: ""
+                    val docName = doc.getString("staffName") ?: doc.getString("name") ?: doc.getString("EmployeeName") ?: ""
+                    val docDate = doc.getString("date") ?: ""
+                    (docUid == employeeUid || docName.equals(name, ignoreCase = true)) && docDate.startsWith(yearMonth)
                 }
 
                 // Group by date to calculate Full Days vs Half Days
@@ -299,21 +290,21 @@ class SalaryRepository(
                     if (dateKey.isBlank()) continue
 
                     val inPunch = punches.find {
-                        val t = it.getString("type") ?: it.getString("action") ?: ""
+                        val t = it.getString("type") ?: it.getString("action") ?: it.getString("punchType") ?: ""
                         t.contains("IN", ignoreCase = true)
                     }
                     val outPunch = punches.find {
-                        val t = it.getString("type") ?: it.getString("action") ?: ""
+                        val t = it.getString("type") ?: it.getString("action") ?: it.getString("punchType") ?: ""
                         t.contains("OUT", ignoreCase = true)
                     }
 
                     val inTime = inPunch?.getString("time") ?: inPunch?.getString("punchInTime") ?: ""
                     val outTime = outPunch?.getString("time") ?: outPunch?.getString("punchOutTime") ?: ""
-                    val lat = inPunch?.getDouble("lat") ?: inPunch?.getDouble("Latitude") ?: 0.0
-                    val lng = inPunch?.getDouble("lng") ?: inPunch?.getDouble("Longitude") ?: 0.0
+                    val lat = inPunch?.getDouble("lat") ?: inPunch?.getDouble("Latitude") ?: inPunch?.getDouble("punchInLat") ?: 0.0
+                    val lng = inPunch?.getDouble("lng") ?: inPunch?.getDouble("Longitude") ?: inPunch?.getDouble("punchInLng") ?: 0.0
                     val outLat = outPunch?.getDouble("lat") ?: 0.0
                     val outLng = outPunch?.getDouble("lng") ?: 0.0
-                    val workArea = inPunch?.getString("workArea") ?: outPunch?.getString("workArea") ?: "Main Office / Site"
+                    val workArea = inPunch?.getString("workArea") ?: inPunch?.getString("siteName") ?: outPunch?.getString("workArea") ?: "Main Office / Site"
 
                     val isFullDay = inPunch != null && outPunch != null
                     val statusStr = if (isFullDay) "PRESENT" else "HALF_DAY"
@@ -324,7 +315,7 @@ class SalaryRepository(
                         halfDayCount++
                     }
 
-                    val mapsUrl = if (lat != 0.0 && lng != 0.0) "https://www.google.com/maps?q=$lat,$lng" else ""
+                    val mapsUrl = if (lat != 0.0 && lng != 0.0) "https://www.google.com/maps?q=$lat,$lng" else (inPunch?.getString("googleMapsUrl") ?: inPunch?.getString("mapsUrl") ?: "")
 
                     dailyLogs.add(
                         DailyPunchLog(
@@ -346,20 +337,21 @@ class SalaryRepository(
 
                 dailyLogs.sortByDescending { it.date }
 
-                // 3. Approved Leaves in this month
-                val leavesSnapshot = firestore.collection("leaves")
-                    .whereEqualTo("employeeUid", employeeUid)
-                    .get()
-                    .await()
-                val leavesList = leavesSnapshot.toObjects(LeaveRequest::class.java)
-                val approvedLeaves = leavesList.filter {
-                    it.status == "APPROVED" && (it.startDate.startsWith(yearMonth) || it.endDate.startsWith(yearMonth))
+                // 3. Approved Leaves in this month (Query both leaveRequests and leaves)
+                val leavesSnapshot = firestore.collection("leaveRequests").get().await()
+                val legacyLeavesSnapshot = firestore.collection("leaves").get().await()
+                val allLeavesList = (leavesSnapshot.toObjects(LeaveRequest::class.java) + legacyLeavesSnapshot.toObjects(LeaveRequest::class.java))
+                    .distinctBy { it.id.ifBlank { "${it.employeeUid}_${it.startDate}" } }
+
+                val userLeaves = allLeavesList.filter { it.employeeUid == employeeUid }
+                val approvedLeaves = userLeaves.filter {
+                    it.status.equals("APPROVED", ignoreCase = true) && (it.startDate.startsWith(yearMonth) || it.endDate.startsWith(yearMonth))
                 }
                 val leaveDaysCount = approvedLeaves.sumOf { it.totalDays }
 
                 // 4. Advances
                 val advances = getAdvanceRequestsForEmployee(employeeUid)
-                val approvedAdvances = advances.filter { it.status == "APPROVED" }
+                val approvedAdvances = advances.filter { it.status.equals("APPROVED", ignoreCase = true) }
                 val totalAdvApproved = approvedAdvances.sumOf { it.approvedAmount }
                 val advMonthlyDeduction = PayrollCalculator.calculateAdvanceDeductionForMonth(approvedAdvances, yearMonth)
 
@@ -374,7 +366,7 @@ class SalaryRepository(
                     val amt = doc.getDouble("amount") ?: 0.0
                     val st = doc.getString("status") ?: "PENDING"
                     totalClaimed += amt
-                    if (st == "APPROVED") {
+                    if (st.equals("APPROVED", ignoreCase = true)) {
                         totalApproved += amt
                     }
                 }
@@ -396,8 +388,6 @@ class SalaryRepository(
                     approvedAdvances = approvedAdvances
                 )
 
-                val absentDays = maxOf(0, 26 - (presentCount + (halfDayCount * 0.5) + leaveDaysCount).toInt())
-
                 Employee360Report(
                     employeeUid = employeeUid,
                     name = name,
@@ -411,11 +401,11 @@ class SalaryRepository(
                     month = yearMonth,
                     presentDaysCount = presentCount,
                     halfDaysCount = halfDayCount,
-                    absentDaysCount = absentDays,
+                    absentDaysCount = payroll.absentDays,
                     approvedLeaveDaysCount = leaveDaysCount,
-                    totalWorkingDays = 26,
+                    totalWorkingDays = payroll.workingDaysInMonth,
                     dailyPunchLogs = dailyLogs,
-                    leaveRequests = leavesList,
+                    leaveRequests = userLeaves,
                     totalAdvanceApproved = totalAdvApproved,
                     advanceMonthlyDeduction = advMonthlyDeduction,
                     advanceRemainingBalance = maxOf(0.0, totalAdvApproved - advMonthlyDeduction),

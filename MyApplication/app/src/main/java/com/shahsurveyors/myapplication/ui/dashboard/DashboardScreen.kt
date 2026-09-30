@@ -40,6 +40,7 @@ import coil.compose.AsyncImage
 import com.shahsurveyors.myapplication.R
 import com.shahsurveyors.myapplication.ui.theme.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -78,10 +79,45 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val syncRepository = remember { com.shahsurveyors.myapplication.data.DataSyncRepository() }
+
     var currentTime by remember { mutableStateOf("") }
     var currentDate by remember { mutableStateOf("") }
     var showNotificationDialog by remember { mutableStateOf(false) }
     var showProfileDialog by remember { mutableStateOf(false) }
+
+    // Google Sheets Sync State
+    var isSyncingToSheets by remember { mutableStateOf(false) }
+    var syncProgressStatus by remember { mutableStateOf("Ready to sync") }
+    var syncProgressPercent by remember { mutableFloatStateOf(0f) }
+    var syncResult by remember { mutableStateOf<com.shahsurveyors.myapplication.data.SyncResult?>(null) }
+    var showSyncDialog by remember { mutableStateOf(false) }
+
+    fun startGoogleSheetsSync() {
+        if (isSyncingToSheets) return
+        coroutineScope.launch {
+            isSyncingToSheets = true
+            showSyncDialog = true
+            syncProgressPercent = 0.05f
+            syncProgressStatus = "Connecting to Firestore..."
+            try {
+                val res = syncRepository.syncAllFirestoreDataToGoogleSheets { status, progress ->
+                    syncProgressStatus = status
+                    syncProgressPercent = progress
+                }
+                syncResult = res
+                viewModel.fetchDashboardData()
+            } catch (e: Exception) {
+                syncResult = com.shahsurveyors.myapplication.data.SyncResult(
+                    isSuccess = false,
+                    message = e.localizedMessage ?: "Sync error occurred"
+                )
+            } finally {
+                isSyncingToSheets = false
+            }
+        }
+    }
 
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -139,6 +175,20 @@ fun DashboardScreen(
                     }
                 },
                 actions = {
+                    // Prominent Cloud Sync Button for Admin & Fast Sync
+                    if (isAdmin) {
+                        IconButton(
+                            onClick = { startGoogleSheetsSync() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudSync,
+                                contentDescription = "Sync All Data to Google Sheet",
+                                tint = ShahWhite,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+
                     IconButton(onClick = { showNotificationDialog = true }) {
                         val count = viewModel.notificationList.count { !it.isRead }
                         if (count > 0) {
@@ -150,7 +200,7 @@ fun DashboardScreen(
                         }
                     }
 
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(6.dp))
 
                     // Profile Picture Avatar / Button
                     Box(
@@ -279,6 +329,7 @@ fun DashboardScreen(
                         onDsr = onNavigateToDsr,
                         onClients = onNavigateToClients,
                         onEquipment = onNavigateToEquipment,
+                        onSyncSheets = { startGoogleSheetsSync() },
                         userAccess = userAccess,
                         isAdmin = isAdmin
                     )
@@ -294,6 +345,16 @@ fun DashboardScreen(
                 contentColor = ShahGreen
             )
         }
+    }
+
+    if (showSyncDialog) {
+        com.shahsurveyors.myapplication.ui.components.GoogleSheetsSyncDialog(
+            isSyncing = isSyncingToSheets,
+            statusText = syncProgressStatus,
+            progressPercent = syncProgressPercent,
+            syncResult = syncResult,
+            onDismiss = { showSyncDialog = false }
+        )
     }
 
     if (showNotificationDialog) {
@@ -457,6 +518,7 @@ fun QuickActionsGrid(
     onDsr: () -> Unit = {},
     onClients: () -> Unit = {},
     onEquipment: () -> Unit = {},
+    onSyncSheets: () -> Unit = {},
     userAccess: String = "ALL",
     isAdmin: Boolean = false
 ) {
@@ -489,6 +551,7 @@ fun QuickActionsGrid(
             add(QuickAction("Staff & Settings", onAdmin))
             add(QuickAction("Create Invoice", onBilling))
             add(QuickAction("Equipment Tracker", onEquipment))
+            add(QuickAction("Sync Google Sheet ☁️", onSyncSheets))
         }
     }
 

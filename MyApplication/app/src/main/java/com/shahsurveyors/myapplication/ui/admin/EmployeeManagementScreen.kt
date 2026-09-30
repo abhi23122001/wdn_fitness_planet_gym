@@ -56,10 +56,42 @@ fun EmployeeManagementScreen(
     val coroutineScope = rememberCoroutineScope()
     val firestore = remember { FirebaseFirestore.getInstance() }
     val salaryRepository = remember { SalaryRepository() }
+    val syncRepository = remember { com.shahsurveyors.myapplication.data.DataSyncRepository() }
 
     var searchQuery by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val employeeList = remember { mutableStateListOf<EmployeeItem>() }
+
+    // Google Sheets Sync State
+    var isSyncingToSheets by remember { mutableStateOf(false) }
+    var syncProgressStatus by remember { mutableStateOf("Ready to sync") }
+    var syncProgressPercent by remember { mutableFloatStateOf(0f) }
+    var syncResult by remember { mutableStateOf<com.shahsurveyors.myapplication.data.SyncResult?>(null) }
+    var showSyncDialog by remember { mutableStateOf(false) }
+
+    fun startGoogleSheetsSync() {
+        if (isSyncingToSheets) return
+        coroutineScope.launch {
+            isSyncingToSheets = true
+            showSyncDialog = true
+            syncProgressPercent = 0.05f
+            syncProgressStatus = "Connecting to Firestore..."
+            try {
+                val res = syncRepository.syncAllFirestoreDataToGoogleSheets { status, progress ->
+                    syncProgressStatus = status
+                    syncProgressPercent = progress
+                }
+                syncResult = res
+            } catch (e: Exception) {
+                syncResult = com.shahsurveyors.myapplication.data.SyncResult(
+                    isSuccess = false,
+                    message = e.localizedMessage ?: "Sync error occurred"
+                )
+            } finally {
+                isSyncingToSheets = false
+            }
+        }
+    }
 
     // Dialog states
     var selectedEmployeeForSettings by remember { mutableStateOf<EmployeeItem?>(null) }
@@ -150,6 +182,13 @@ fun EmployeeManagementScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { startGoogleSheetsSync() }) {
+                        Icon(
+                            imageVector = Icons.Default.CloudSync,
+                            contentDescription = "Sync All Data to Google Sheet",
+                            tint = ShahWhite
+                        )
+                    }
                     IconButton(onClick = { loadEmployees() }) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
@@ -398,7 +437,6 @@ fun EmployeeManagementScreen(
                     try {
                         firestore.collection("users").document(emp.uid)
                             .update("access", newAccess)
-                            .await()
                         Toast.makeText(context, "Permissions updated for ${emp.name}", Toast.LENGTH_SHORT).show()
                         selectedEmployeeForSettings = null
                         loadEmployees()
@@ -407,6 +445,17 @@ fun EmployeeManagementScreen(
                     }
                 }
             }
+        )
+    }
+
+    // Google Sheets Sync Dialog
+    if (showSyncDialog) {
+        com.shahsurveyors.myapplication.ui.components.GoogleSheetsSyncDialog(
+            isSyncing = isSyncingToSheets,
+            statusText = syncProgressStatus,
+            progressPercent = syncProgressPercent,
+            syncResult = syncResult,
+            onDismiss = { showSyncDialog = false }
         )
     }
 }

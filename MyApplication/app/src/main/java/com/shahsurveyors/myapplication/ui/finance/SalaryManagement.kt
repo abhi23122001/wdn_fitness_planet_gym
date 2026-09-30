@@ -112,14 +112,11 @@ fun SalaryManagementScreen(
                 actions = {
                     if (isAdmin) {
                         IconButton(onClick = {
-                            for (rec in viewModel.payrollRecords) {
-                                viewModel.syncPayrollToGoogleSheets(rec)
-                            }
-                            Toast.makeText(context, "Syncing all payroll records to Google Sheets...", Toast.LENGTH_SHORT).show()
+                            viewModel.syncAllDataToGoogleSheets(currentUid, isAdmin)
                         }) {
                             Icon(
-                                imageVector = Icons.Default.CloudUpload,
-                                contentDescription = "Sync to Google Sheets",
+                                imageVector = Icons.Default.CloudSync,
+                                contentDescription = "Sync All Data to Google Sheets",
                                 tint = ShahWhite
                             )
                         }
@@ -558,6 +555,17 @@ fun SalaryManagementScreen(
                     currentUid = currentUid
                 )
             }
+        )
+    }
+
+    // Google Sheets Sync Dialog
+    if (viewModel.showSyncDialog) {
+        com.shahsurveyors.myapplication.ui.components.GoogleSheetsSyncDialog(
+            isSyncing = viewModel.isSyncingToSheets,
+            statusText = viewModel.syncProgressStatus,
+            progressPercent = viewModel.syncProgressPercent,
+            syncResult = viewModel.lastSyncResult,
+            onDismiss = { viewModel.dismissSyncDialog() }
         )
     }
 }

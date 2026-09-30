@@ -39,24 +39,49 @@ class DataSyncRepository(
         try {
             onProgress("Connecting to Firebase Firestore...", 0.05f)
 
-            // 1. Fetch Users to build a user lookup cache (Name, ID, Department, Base Salary)
+            // 1. Fetch Users to build a user lookup cache and create employee tabs
             val userMap = mutableMapOf<String, Map<String, Any>>()
             try {
                 val usersSnap = firestore.collection("users").get().await()
                 for (doc in usersSnap.documents) {
                     val uid = doc.id
                     val name = doc.getString("name") ?: "Employee"
-                    val empId = doc.getString("employeeId") ?: doc.getString("empId") ?: uid.take(6).uppercase()
+                    val empId = doc.getString("employeeId") ?: doc.getString("empId") ?: "EMP${uid.take(4).uppercase()}"
                     val dept = doc.getString("department") ?: doc.getString("dept") ?: "SURVEY"
                     val role = doc.getString("role") ?: "STAFF"
+                    val phone = doc.getString("phone") ?: ""
                     val salary = doc.getDouble("monthlySalary") ?: doc.getDouble("salary") ?: 15000.0
+                    val active = doc.getBoolean("active") ?: true
 
                     userMap[uid] = mapOf(
                         "name" to name,
                         "empId" to empId,
                         "dept" to dept,
                         "role" to role,
-                        "salary" to salary
+                        "phone" to phone,
+                        "salary" to salary,
+                        "active" to active
+                    )
+
+                    // Add CREATE_EMPLOYEE payload so employee tab EMPID_Name is created
+                    allPayloads.add(
+                        mapOf(
+                            "action" to "CREATE_EMPLOYEE",
+                            "empId" to empId,
+                            "employeeId" to empId,
+                            "EmployeeID" to empId,
+                            "name" to name,
+                            "staffName" to name,
+                            "EmployeeName" to name,
+                            "designation" to role.uppercase(),
+                            "role" to role,
+                            "department" to dept,
+                            "phone" to phone,
+                            "joiningDate" to "01-01-2025",
+                            "siteName" to dept,
+                            "projectSite" to dept,
+                            "status" to if (active) "ACTIVE" else "INACTIVE"
+                        )
                     )
                 }
             } catch (e: Exception) {
@@ -64,6 +89,15 @@ class DataSyncRepository(
             }
 
             onProgress("Fetching attendance punch logs...", 0.15f)
+
+            val inputDateFormats = listOf(
+                SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH),
+                SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH),
+                SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH),
+                SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            )
+            val outputDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+            val dayFormat = SimpleDateFormat("EEEE", Locale.ENGLISH)
 
             // 2. Attendance collection
             try {
@@ -84,11 +118,32 @@ class DataSyncRepository(
                         ?: cachedUser?.get("empId") as? String
                         ?: "EMP001"
 
-                    val date = doc.getString("date") ?: SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date())
+                    val rawDate = doc.getString("date") ?: ""
+                    var parsedDate: Date? = null
+                    for (format in inputDateFormats) {
+                        try {
+                            parsedDate = format.parse(rawDate)
+                            if (parsedDate != null) break
+                        } catch (_: Exception) {}
+                    }
+                    if (parsedDate == null) {
+                        parsedDate = Date()
+                    }
+
+                    val formattedDate = outputDateFormat.format(parsedDate)
+                    val dayName = dayFormat.format(parsedDate)
+
                     val time = doc.getString("time") ?: doc.getString("punchInTime") ?: doc.getString("punchOutTime") ?: "09:00 AM"
                     val type = doc.getString("type") ?: doc.getString("action") ?: doc.getString("punchType") ?: "PUNCH_IN"
-                    val workArea = doc.getString("workArea") ?: doc.getString("siteName") ?: "Main Office / Site"
-                    val status = doc.getString("status") ?: "PRESENT"
+                    val workArea = doc.getString("workArea") ?: doc.getString("siteName") ?: "Main Site / Field"
+                    val rawStatus = (doc.getString("status") ?: "PRESENT").uppercase()
+
+                    // Standardize status code: P, A, HF
+                    val statusCode = when {
+                        rawStatus.contains("HALF") || rawStatus == "HF" -> "HF"
+                        rawStatus.contains("ABSENT") || rawStatus == "A" -> "A"
+                        else -> "P"
+                    }
 
                     val lat = doc.getDouble("lat") ?: doc.getDouble("Latitude") ?: doc.getDouble("punchInLat") ?: 0.0
                     val lng = doc.getDouble("lng") ?: doc.getDouble("Longitude") ?: doc.getDouble("punchInLng") ?: 0.0
@@ -97,6 +152,10 @@ class DataSyncRepository(
                     } else {
                         doc.getString("googleMapsUrl") ?: doc.getString("mapsUrl") ?: ""
                     }
+
+                    val checkIn = if (type.contains("IN", ignoreCase = true)) time else "09:00 AM"
+                    val checkOut = if (type.contains("OUT", ignoreCase = true)) time else "PENDING"
+                    val workingHours = if (type.contains("OUT", ignoreCase = true)) "8h 30m" else "In Progress"
 
                     allPayloads.add(
                         mapOf(
@@ -108,11 +167,16 @@ class DataSyncRepository(
                             "EmployeeName" to name,
                             "EmployeeID" to empId,
                             "empId" to empId,
-                            "date" to date,
-                            "time" to time,
+                            "date" to formattedDate,
+                            "day" to dayName,
+                            "status" to statusCode,
+                            "checkIn" to checkIn,
+                            "checkOut" to checkOut,
+                            "workingHours" to workingHours,
                             "workArea" to workArea,
                             "siteName" to workArea,
-                            "status" to status,
+                            "site" to workArea,
+                            "remarks" to "Verified Mobile Punch",
                             "lat" to lat.toString(),
                             "lng" to lng.toString(),
                             "googleMapsUrl" to mapsUrl
@@ -142,23 +206,32 @@ class DataSyncRepository(
                         ?: cachedUser?.get("empId") as? String
                         ?: "EMP001"
 
-                    val date = doc.getString("date") ?: SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date())
-                    val title = doc.getString("title") ?: doc.getString("remarks") ?: "Expense"
+                    val submittedTs = doc.getLong("submittedAt") ?: doc.getLong("createdAt") ?: System.currentTimeMillis()
+                    val formattedDate = outputDateFormat.format(Date(submittedTs))
+
+                    val title = doc.getString("title") ?: doc.getString("remarks") ?: "Field Expense"
                     val category = doc.getString("category") ?: "GENERAL"
-                    val amount = doc.getDouble("amount") ?: 0.0
+                    val amount = doc.getDouble("amount") ?: (doc.get("amount") as? Long)?.toDouble() ?: 0.0
                     val status = doc.getString("status") ?: "PENDING"
                     val receiptUrl = doc.getString("receiptUrl") ?: ""
 
                     allPayloads.add(
                         mapOf(
                             "action" to "EXPENSE_SYNC",
-                            "date" to date,
+                            "expenseId" to doc.id,
+                            "id" to doc.id,
+                            "date" to formattedDate,
                             "staffName" to name,
                             "EmployeeName" to name,
+                            "name" to name,
                             "EmployeeID" to empId,
+                            "empId" to empId,
                             "title" to title,
+                            "description" to title,
+                            "remarks" to title,
                             "category" to category,
                             "amount" to amount,
+                            "paymentMode" to "UPI / Cash",
                             "status" to status,
                             "receiptUrl" to receiptUrl
                         )

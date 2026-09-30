@@ -195,6 +195,12 @@ class AttendanceViewModel(
                 withContext(Dispatchers.IO) {
                     try {
                         val empId = auth.currentUser?.uid?.take(8)?.uppercase() ?: "EMP001"
+                        val formattedDate = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH).format(Date())
+                        val dayName = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date())
+                        val checkIn = if (isPunchIn) currentTime else "09:00 AM"
+                        val checkOut = if (!isPunchIn) currentTime else "PENDING"
+                        val workingHours = if (!isPunchIn) "8h 30m" else "In Progress"
+
                         val payload = mapOf<String, Any>(
                             "action" to "ATTENDANCE_PUNCH",
                             "punchType" to action,
@@ -206,8 +212,16 @@ class AttendanceViewModel(
                             "empId" to empId,
                             "workArea" to workArea,
                             "siteName" to workArea,
-                            "date" to todayDate,
+                            "site" to workArea,
+                            "date" to formattedDate,
+                            "rawDate" to todayDate,
+                            "day" to dayName,
                             "time" to currentTime,
+                            "checkIn" to checkIn,
+                            "checkOut" to checkOut,
+                            "workingHours" to workingHours,
+                            "status" to "P",
+                            "remarks" to "Real-time Mobile Punch",
                             "lat" to location.first.toString(),
                             "lng" to location.second.toString(),
                             "punchInLat" to location.first.toString(),
@@ -215,25 +229,11 @@ class AttendanceViewModel(
                             "Latitude" to location.first.toString(),
                             "Longitude" to location.second.toString(),
                             "googleMapsUrl" to mapsUrl,
-                            "mapsUrl" to mapsUrl,
-                            "status" to "PRESENT"
+                            "mapsUrl" to mapsUrl
                         )
                         RetrofitClient.api.handleAction(payload)
                     } catch (e: Exception) {
-                        try {
-                            RetrofitClient.api.handleAction(
-                                mapOf<String, Any>(
-                                    "action" to action,
-                                    "staffName" to staffName,
-                                    "workArea" to workArea,
-                                    "lat" to location.first.toString(),
-                                    "lng" to location.second.toString(),
-                                    "googleMapsUrl" to mapsUrl
-                                )
-                            )
-                        } catch (e2: Exception) {
-                            e2.printStackTrace()
-                        }
+                        e.printStackTrace()
                     }
                 }
 

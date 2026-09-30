@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.shahsurveyors.myapplication.data.NotificationRepository
 import com.shahsurveyors.myapplication.models.AppNotification
+import com.shahsurveyors.myapplication.network.RetrofitClient
 import com.shahsurveyors.myapplication.utils.BitmapUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -212,6 +213,36 @@ class ExpenseViewModel(
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
+                }
+
+                // 4. INSTANT GOOGLE SHEETS SYNC (NON-BLOCKING)
+                withContext(Dispatchers.IO) {
+                    try {
+                        val formattedDate = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH).format(Date(currentTime))
+                        val empId = "EMP${uid.take(4).uppercase()}"
+                        val payload = mapOf<String, Any>(
+                            "action" to "EXPENSE_SYNC",
+                            "expenseId" to expenseDoc.id,
+                            "id" to expenseDoc.id,
+                            "date" to formattedDate,
+                            "staffName" to empName,
+                            "EmployeeName" to empName,
+                            "name" to empName,
+                            "EmployeeID" to empId,
+                            "empId" to empId,
+                            "category" to category,
+                            "title" to remarks,
+                            "description" to remarks,
+                            "remarks" to remarks,
+                            "amount" to amountValue,
+                            "paymentMode" to "UPI / Cash",
+                            "status" to "PENDING",
+                            "receiptUrl" to receiptUrl
+                        )
+                        RetrofitClient.api.handleAction(payload)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
 
                 statusMessage = "Expense submitted successfully"

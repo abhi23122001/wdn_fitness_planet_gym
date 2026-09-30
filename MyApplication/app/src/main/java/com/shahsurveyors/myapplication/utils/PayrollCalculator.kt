@@ -66,18 +66,35 @@ object PayrollCalculator {
             Pair(monthlySalary, "Standard Rate")
         }
 
-        // Attendance & Absence
-        // Half days count as 0.5 present day
+        // Attendance & Absence (Smart Calculation for Current vs Past Months)
+        val currentYearMonth = SimpleDateFormat("yyyy-MM", Locale.ENGLISH).format(Date())
+        val isCurrentMonth = (yearMonth == currentYearMonth)
+        val currentDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+
+        // For current ongoing month, only count passed working days to prevent unfair future absence deductions
+        val elapsedDaysInMonth = if (isCurrentMonth) minOf(totalDaysInMonth, currentDay) else totalDaysInMonth
+        val elapsedWorkingDays = if (isCurrentMonth) {
+            maxOf(1, (elapsedDaysInMonth * (STANDARD_WORKING_DAYS.toDouble() / totalDaysInMonth)).roundToInt())
+        } else {
+            workingDaysInMonth
+        }
+
         val effectivePresent = presentDays + (halfDays * 0.5)
         val nonAbsenceDays = effectivePresent + approvedLeaveDays
-        val absentDays = maxOf(0, (workingDaysInMonth - nonAbsenceDays).roundToInt())
+        val absentDays = if (isCurrentMonth) {
+            maxOf(0, (elapsedWorkingDays - nonAbsenceDays).roundToInt())
+        } else {
+            maxOf(0, (workingDaysInMonth - nonAbsenceDays).roundToInt())
+        }
+
         val absenceDeduction = ((absentDays * dailyRate) * 100.0).roundToInt() / 100.0
 
         // Overtime Earnings
         val overtimePay = ((overtimeHours * overtimeRate) * 100.0).roundToInt() / 100.0
 
-        // Gross Salary Earned
-        val grossSalaryEarned = maxOf(0.0, ((nonAbsenceDays * dailyRate + overtimePay) * 100.0).roundToInt() / 100.0)
+        // Gross Salary Earned (Based on days worked + leaves)
+        val earnedDays = if (nonAbsenceDays > 0) nonAbsenceDays else if (isCurrentMonth) maxOf(1.0, elapsedWorkingDays.toDouble() - absentDays) else 0.0
+        val grossSalaryEarned = maxOf(0.0, ((earnedDays * dailyRate + overtimePay) * 100.0).roundToInt() / 100.0)
 
         // Advance Salary Deductions calculation
         val advanceDeduction = calculateAdvanceDeductionForMonth(
