@@ -11,8 +11,7 @@ class DashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard)
 
         val name = getSharedPreferences("fitness_planet", MODE_PRIVATE)
-            .getString("member_name", null)
-            ?: getPreferences(MODE_PRIVATE).getString("member_name", "Member")
+            .getString("member_name", "Member")
             ?: "Member"
 
         findViewById<TextView>(R.id.memberGreeting).text = "Good to see you, $name"
