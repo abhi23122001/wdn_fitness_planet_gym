@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">fitness_planet_gym</string>
+    <string name="app_name">Fitness Planet Gym</string>
+    <string name="home_title">FITNESS PLANET</string>
+    <string name="home_subtitle">Your fitness journey starts here.</string>
+    <string name="home_description">Track workouts, attendance and progress from one place.</string>
+    <string name="today_title">TODAY</string>
+    <string name="today_status">Ready for your workout</string>
+    <string name="start_session">START SESSION</string>
 </resources>
