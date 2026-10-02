@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (getPreferences(MODE_PRIVATE).getBoolean("logged_in", false)) {
+        if (getSharedPreferences("fitness_planet", MODE_PRIVATE).getBoolean("logged_in", false)) {
             openDashboard()
             return
         }
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         loginButton.setOnClickListener {
             val name = nameInput.text?.toString()?.trim().orEmpty()
-            getPreferences(MODE_PRIVATE).edit()
+            getSharedPreferences("fitness_planet", MODE_PRIVATE).edit()
                 .putBoolean("logged_in", true)
                 .putString("member_name", name.ifBlank { "Member" })
                 .apply()
