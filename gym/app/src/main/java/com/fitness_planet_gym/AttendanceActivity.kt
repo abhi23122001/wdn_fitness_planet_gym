@@ -19,7 +19,6 @@ import java.util.Date
 import java.util.Locale
 
 class AttendanceActivity : AppCompatActivity() {
-
     companion object {
         private const val CAMERA_REQUEST = 501
         private const val CAMERA_PERMISSION = 502
@@ -28,6 +27,8 @@ class AttendanceActivity : AppCompatActivity() {
     private lateinit var selfiePreview: ImageView
     private lateinit var statusText: TextView
     private lateinit var dateTimeText: TextView
+    private lateinit var markButton: Button
+    private val firebaseRepository = FirebaseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,15 +37,15 @@ class AttendanceActivity : AppCompatActivity() {
         selfiePreview = findViewById(R.id.selfiePreview)
         statusText = findViewById(R.id.attendanceStatus)
         dateTimeText = findViewById(R.id.attendanceDateTime)
+        markButton = findViewById(R.id.markAttendanceButton)
 
         findViewById<Button>(R.id.captureSelfieButton).setOnClickListener { openCamera() }
-        findViewById<Button>(R.id.markAttendanceButton).setOnClickListener { markAttendance() }
+        markButton.setOnClickListener { markAttendance() }
         loadTodayStatus()
     }
 
     private fun openCamera() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION)
             return
         }
@@ -69,28 +70,51 @@ class AttendanceActivity : AppCompatActivity() {
             return
         }
 
-        val now = SimpleDateFormat("dd MMM yyyy • hh:mm a", Locale.getDefault()).format(Date())
-        getSharedPreferences("fitness_planet", MODE_PRIVATE).edit()
-            .putString("last_attendance", now)
-            .putBoolean("attendance_today", true)
-            .apply()
+        markButton.isEnabled = false
+        statusText.text = "SAVING ATTENDANCE…"
 
-        dateTimeText.text = now
-        statusText.text = "ATTENDANCE MARKED ✓"
-        statusText.setTextColor(getColor(R.color.fitness_mint))
-        findViewById<Button>(R.id.markAttendanceButton).isEnabled = false
-        Toast.makeText(this, "Attendance marked successfully.", Toast.LENGTH_SHORT).show()
+        val nowMillis = System.currentTimeMillis()
+        firebaseRepository.markAttendance(nowMillis) { success, error ->
+            runOnUiThread {
+                if (success) {
+                    val now = SimpleDateFormat("dd MMM yyyy • hh:mm a", Locale.getDefault()).format(Date(nowMillis))
+                    getSharedPreferences("fitness_planet", MODE_PRIVATE).edit()
+                        .putString("last_attendance", now)
+                        .putString("attendance_date", SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(nowMillis)))
+                        .putBoolean("attendance_today", true)
+                        .apply()
+                    dateTimeText.text = now
+                    statusText.text = "ATTENDANCE MARKED ✓"
+                    statusText.setTextColor(getColor(R.color.fitness_mint))
+                    Toast.makeText(this, "Attendance synced to Firebase.", Toast.LENGTH_SHORT).show()
+                } else {
+                    markButton.isEnabled = true
+                    statusText.text = "SAVE FAILED"
+                    Toast.makeText(this, error ?: "Unable to save attendance", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun loadTodayStatus() {
-        val prefs = getSharedPreferences("fitness_planet", MODE_PRIVATE)
-        val marked = prefs.getBoolean("attendance_today", false)
-        val last = prefs.getString("last_attendance", null)
-        if (marked && last != null) {
-            statusText.text = "ATTENDANCE MARKED ✓"
-            dateTimeText.text = last
-            statusText.setTextColor(getColor(R.color.fitness_mint))
-            findViewById<Button>(R.id.markAttendanceButton).isEnabled = false
+        firebaseRepository.isAttendanceMarkedToday { marked, error ->
+            runOnUiThread {
+                if (marked) {
+                    val prefs = getSharedPreferences("fitness_planet", MODE_PRIVATE)
+                    val last = prefs.getString("last_attendance", null)
+                    statusText.text = "ATTENDANCE MARKED ✓"
+                    if (last != null) dateTimeText.text = last
+                    statusText.setTextColor(getColor(R.color.fitness_mint))
+                    markButton.isEnabled = false
+                } else {
+                    markButton.isEnabled = true
+                    if (!error.isNullOrBlank()) {
+                        statusText.text = "READY"
+                    } else {
+                        statusText.text = "READY FOR TODAY"
+                    }
+                }
+            }
         }
     }
 }
