@@ -1,6 +1,8 @@
 package com.fitness_planet_gym
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -15,5 +17,9 @@ class DashboardActivity : AppCompatActivity() {
             ?: "Member"
 
         findViewById<TextView>(R.id.memberGreeting).text = "Good to see you, $name"
+
+        findViewById<Button>(R.id.startWorkoutButton).setOnClickListener {
+            startActivity(Intent(this, WorkoutPlansActivity::class.java))
+        }
     }
 }
