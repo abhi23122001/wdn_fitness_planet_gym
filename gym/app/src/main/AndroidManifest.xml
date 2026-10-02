@@ -14,9 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Fitness_planet_gym">
 
-        <activity
-            android:name=".DashboardActivity"
-            android:exported="false" />
+        <activity android:name=".WorkoutDetailActivity" android:exported="false" />
+        <activity android:name=".WorkoutPlansActivity" android:exported="false" />
+        <activity android:name=".DashboardActivity" android:exported="false" />
 
         <activity
             android:name=".MainActivity"
