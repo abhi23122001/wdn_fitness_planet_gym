@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fitness_background">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ATTENDANCE"
+            android:textColor="@color/fitness_mint"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Check in to your gym"
+            android:textColor="@color/fitness_text"
+            android:textSize="29sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/attendanceStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Selfie required for attendance"
+            android:textColor="@color/fitness_text_muted"
+            android:textSize="14sp" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="22dp"
+            app:cardBackgroundColor="@color/fitness_surface"
+            app:cardCornerRadius="24dp">
+            <ImageView
+                android:id="@+id/selfiePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Attendance selfie preview"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_camera" />
+        </com.google.android.material.card.MaterialCardView>
+        <Button
+            android:id="@+id/captureSelfieButton"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/fitness_surface_2"
+            android:text="CAPTURE SELFIE"
+            android:textColor="@color/fitness_text"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+        <TextView
+            android:id="@+id/attendanceDateTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="Date &amp; time will appear after check-in"
+            android:textColor="@color/fitness_text_muted"
+            android:textSize="13sp" />
+        <Button
+            android:id="@+id/markAttendanceButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="14dp"
+            android:backgroundTint="@color/fitness_mint"
+            android:text="MARK ATTENDANCE"
+            android:textColor="@color/fitness_dark"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+</ScrollView>
