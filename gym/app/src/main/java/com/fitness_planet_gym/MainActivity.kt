@@ -1,23 +1,38 @@
 package com.fitness_planet_gym
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (getPreferences(MODE_PRIVATE).getBoolean("logged_in", false)) {
+            openDashboard()
+            return
+        }
+
         setContentView(R.layout.activity_main)
 
-        val status = findViewById<TextView>(R.id.sessionStatus)
-        val startButton = findViewById<Button>(R.id.startSessionButton)
+        val nameInput = findViewById<TextInputEditText>(R.id.nameInput)
+        val loginButton = findViewById<Button>(R.id.loginButton)
 
-        startButton.setOnClickListener {
-            status.text = "Session started • Let's train"
-            startButton.text = "SESSION ACTIVE"
-            startButton.isEnabled = false
+        loginButton.setOnClickListener {
+            val name = nameInput.text?.toString()?.trim().orEmpty()
+            getPreferences(MODE_PRIVATE).edit()
+                .putBoolean("logged_in", true)
+                .putString("member_name", name.ifBlank { "Member" })
+                .apply()
+            openDashboard()
         }
+    }
+
+    private fun openDashboard() {
+        startActivity(Intent(this, DashboardActivity::class.java))
+        finish()
     }
 }
