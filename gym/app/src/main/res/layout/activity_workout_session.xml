@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/fitness_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="22dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="LIVE WORKOUT" android:textColor="@color/fitness_mint"
+            android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.14" />
+        <TextView android:id="@+id/progressText" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="9dp"
+            android:text="EXERCISE 1 / 5" android:textColor="@color/fitness_text_muted"
+            android:textSize="12sp" android:textStyle="bold" />
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="22dp"
+            app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="26dp"
+            app:strokeColor="@color/fitness_surface_2" app:strokeWidth="1dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="24dp">
+                <TextView android:id="@+id/exerciseTitle" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:text="Barbell Bench Press"
+                    android:textColor="@color/fitness_text" android:textSize="27sp" android:textStyle="bold" />
+                <TextView android:id="@+id/exerciseMeta" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="10dp"
+                    android:text="4 sets × 10 reps" android:textColor="@color/fitness_mint"
+                    android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" android:text="REST TIMER"
+                    android:textColor="@color/fitness_text_muted" android:textSize="10sp" android:textStyle="bold" />
+                <TextView android:id="@+id/restTimer" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                    android:text="READY" android:textColor="@color/fitness_text" android:textSize="30sp" android:textStyle="bold" />
+                <Button android:id="@+id/completeExerciseButton" android:layout_width="match_parent"
+                    android:layout_height="56dp" android:layout_marginTop="24dp"
+                    android:backgroundTint="@color/fitness_mint" android:text="COMPLETE EXERCISE"
+                    android:textColor="@color/fitness_dark" android:textStyle="bold" android:stateListAnimator="@null" />
+                <Button android:id="@+id/skipRestButton" android:layout_width="match_parent"
+                    android:layout_height="50dp" android:layout_marginTop="8dp"
+                    android:backgroundTint="@color/fitness_surface_2" android:text="SKIP REST"
+                    android:textColor="@color/fitness_text" android:stateListAnimator="@null" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:gravity="center"
+            android:text="Complete each exercise to finish today's session."
+            android:textColor="@color/fitness_text_muted" android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>
