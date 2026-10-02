@@ -18,6 +18,10 @@ class DashboardActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.memberGreeting).text = "Good to see you, $name"
 
+        findViewById<Button>(R.id.attendanceButton).setOnClickListener {
+            startActivity(Intent(this, AttendanceActivity::class.java))
+        }
+
         findViewById<Button>(R.id.startWorkoutButton).setOnClickListener {
             startActivity(Intent(this, WorkoutPlansActivity::class.java))
         }
