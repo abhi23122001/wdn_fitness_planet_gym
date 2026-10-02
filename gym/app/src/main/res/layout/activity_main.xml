@@ -8,15 +8,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="26dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/home_title"
+            android:text="FITNESS PLANET"
             android:textColor="@color/fitness_mint"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -25,27 +25,27 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/home_subtitle"
+            android:layout_marginTop="12dp"
+            android:text="Train smarter.&#10;Build stronger."
             android:textColor="@color/fitness_text"
-            android:textSize="30sp"
+            android:textSize="34sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/home_description"
+            android:text="Your complete gym companion for workouts, attendance and progress."
             android:textColor="@color/fitness_text_muted"
             android:textSize="16sp"
-            android:lineSpacingExtra="4dp" />
+            android:lineSpacingExtra="3dp" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="30dp"
             app:cardBackgroundColor="@color/fitness_surface"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="26dp"
             app:strokeColor="@color/fitness_surface_2"
             app:strokeWidth="1dp">
 
@@ -58,43 +58,52 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/today_title"
+                    android:text="WELCOME BACK"
                     android:textColor="@color/fitness_mint"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:letterSpacing="0.14" />
+                    android:letterSpacing="0.12" />
 
-                <TextView
-                    android:id="@+id/sessionStatus"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/today_status"
-                    android:textColor="@color/fitness_text"
-                    android:textSize="21sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="18dp"
+                    android:hint="Your name"
+                    app:boxStrokeColor="@color/fitness_mint"
+                    app:hintTextColor="@color/fitness_text_muted">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/nameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:textColor="@color/fitness_text"
+                        android:textColorHint="@color/fitness_text_muted" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
-                    android:id="@+id/startSessionButton"
+                    android:id="@+id/loginButton"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/start_session"
+                    android:layout_marginTop="18dp"
+                    android:backgroundTint="@color/fitness_mint"
+                    android:text="CONTINUE"
                     android:textColor="@color/fitness_dark"
                     android:textStyle="bold"
-                    android:backgroundTint="@color/fitness_mint"
                     android:stateListAnimator="@null" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center"
+                    android:text="Secure Firebase login will be connected in the next backend phase."
+                    android:textColor="@color/fitness_text_muted"
+                    android:textSize="11sp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="Next modules: Workouts • Attendance • Progress • Profile"
-            android:textColor="@color/fitness_text_muted"
-            android:textSize="14sp" />
 
     </LinearLayout>
 </ScrollView>
