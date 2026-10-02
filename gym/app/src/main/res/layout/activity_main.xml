@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:padding="26dp">
@@ -58,7 +58,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="WELCOME BACK"
+                    android:text="MEMBER LOGIN"
                     android:textColor="@color/fitness_mint"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -70,6 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
                     android:hint="Your name"
+                    android:visibility="gone"
                     app:boxStrokeColor="@color/fitness_mint"
                     app:hintTextColor="@color/fitness_text_muted">
 
@@ -82,28 +83,77 @@
                         android:textColorHint="@color/fitness_text_muted" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Email"
+                    app:boxStrokeColor="@color/fitness_mint"
+                    app:hintTextColor="@color/fitness_text_muted">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/emailInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@color/fitness_text"
+                        android:textColorHint="@color/fitness_text_muted" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Password"
+                    app:boxStrokeColor="@color/fitness_mint"
+                    app:hintTextColor="@color/fitness_text_muted"
+                    app:endIconMode="password_toggle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/passwordInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:textColor="@color/fitness_text"
+                        android:textColorHint="@color/fitness_text_muted" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <Button
                     android:id="@+id/loginButton"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="18dp"
                     android:backgroundTint="@color/fitness_mint"
-                    android:text="CONTINUE"
+                    android:text="LOGIN"
                     android:textColor="@color/fitness_dark"
                     android:textStyle="bold"
                     android:stateListAnimator="@null" />
+
+                <TextView
+                    android:id="@+id/modeButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center"
+                    android:text="New member? Create account"
+                    android:textColor="@color/fitness_mint"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:gravity="center"
-                    android:text="Secure Firebase login will be connected in the next backend phase."
+                    android:text="Firebase Authentication • Secure account access"
                     android:textColor="@color/fitness_text_muted"
                     android:textSize="11sp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
     </LinearLayout>
 </ScrollView>
