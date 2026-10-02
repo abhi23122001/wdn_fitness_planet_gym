@@ -7,27 +7,41 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class DashboardActivity : AppCompatActivity() {
+    private val firebaseRepository = FirebaseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        val name = getSharedPreferences("fitness_planet", MODE_PRIVATE)
-            .getString("member_name", "Member")
-            ?: "Member"
-
-        findViewById<TextView>(R.id.memberGreeting).text = "Good to see you, $name"
-
         findViewById<Button>(R.id.profileButton).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
-
         findViewById<Button>(R.id.attendanceButton).setOnClickListener {
             startActivity(Intent(this, AttendanceActivity::class.java))
         }
-
         findViewById<Button>(R.id.startWorkoutButton).setOnClickListener {
             startActivity(Intent(this, WorkoutPlansActivity::class.java))
+        }
+
+        loadDashboard()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadDashboard()
+    }
+
+    private fun loadDashboard() {
+        val prefs = getSharedPreferences("fitness_planet", MODE_PRIVATE)
+        val name = prefs.getString("member_name", "Member") ?: "Member"
+        findViewById<TextView>(R.id.memberGreeting).text = "Good to see you, $name"
+
+        firebaseRepository.loadDashboardStats { workouts, attendance, _, _ ->
+            runOnUiThread {
+                findViewById<TextView>(R.id.workoutsCount).text = workouts.toString()
+                findViewById<TextView>(R.id.attendancePercent).text =
+                    if (attendance > 0) "100%" else "0%"
+            }
         }
     }
 }
