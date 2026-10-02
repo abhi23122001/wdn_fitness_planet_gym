@@ -27,4 +27,39 @@ class FirebaseRepository {
             .addOnSuccessListener { onComplete(true, null) }
             .addOnFailureListener { onComplete(false, it.message) }
     }
+
+    fun loadProfile(onComplete: (MemberProfile?, String?) -> Unit) {
+        val user = auth.currentUser
+        if (user == null) {
+            onComplete(null, "User is not authenticated")
+            return
+        }
+
+        firestore.collection("members").document(user.uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.exists()) {
+                    onComplete(
+                        MemberProfile(
+                            uid = user.uid,
+                            name = user.displayName.orEmpty()
+                        ),
+                        null
+                    )
+                    return@addOnSuccessListener
+                }
+
+                onComplete(
+                    MemberProfile(
+                        uid = user.uid,
+                        name = snapshot.getString("name").orEmpty(),
+                        weightKg = snapshot.getString("weightKg").orEmpty(),
+                        heightCm = snapshot.getString("heightCm").orEmpty(),
+                        goal = snapshot.getString("goal").orEmpty()
+                    ),
+                    null
+                )
+            }
+            .addOnFailureListener { onComplete(null, it.message) }
+    }
 }
