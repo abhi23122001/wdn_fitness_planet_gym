@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/fitness_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="22dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="MY PROFILE" android:textColor="@color/fitness_mint"
+            android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Your fitness profile"
+            android:textColor="@color/fitness_text" android:textSize="29sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:text="Keep your details updated for better progress tracking."
+            android:textColor="@color/fitness_text_muted" android:textSize="14sp" />
+
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="22dp"
+            app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="22dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="18dp">
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Name">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/profileName" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textColor="@color/fitness_text" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Weight (kg)">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/profileWeight" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" android:textColor="@color/fitness_text" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Height (cm)">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/profileHeight" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" android:textColor="@color/fitness_text" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Fitness goal">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/profileGoal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:hint="e.g. Muscle gain" android:textColor="@color/fitness_text" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <Button android:id="@+id/saveProfileButton" android:layout_width="match_parent"
+                    android:layout_height="54dp" android:layout_marginTop="18dp"
+                    android:backgroundTint="@color/fitness_mint" android:text="SAVE PROFILE"
+                    android:textColor="@color/fitness_dark" android:textStyle="bold" android:stateListAnimator="@null" />
+                <TextView android:id="@+id/saveStatus" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="10dp"
+                    android:gravity="center" android:textColor="@color/fitness_mint" android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="22dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="PROGRESS SNAPSHOT" android:textColor="@color/fitness_mint"
+                    android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:text="Weight history and body measurements will be connected to Firebase in the next data phase."
+                    android:textColor="@color/fitness_text_muted" android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>
