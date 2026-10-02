@@ -57,6 +57,24 @@ class FirebaseRepository {
             .addOnFailureListener { onComplete(false, it.message) }
     }
 
+    fun loadDashboardStats(onComplete: (Int, Int, Int, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(0, 0, 0, "User is not authenticated")
+            return
+        }
+
+        val memberRef = firestore.collection("members").document(uid)
+        memberRef.collection("workouts").get()
+            .addOnSuccessListener { workouts ->
+                memberRef.collection("attendance").get()
+                    .addOnSuccessListener { attendance ->
+                        onComplete(workouts.size(), attendance.size(), 0, null)
+                    }
+                    .addOnFailureListener { onComplete(workouts.size(), 0, 0, it.message) }
+            }
+            .addOnFailureListener { onComplete(0, 0, 0, it.message) }
+    }
+
     fun completeWorkout(title: String, exerciseCount: Int, durationMinutes: Int, onComplete: (Boolean, String?) -> Unit) {
         val uid = auth.currentUser?.uid ?: run {
             onComplete(false, "User is not authenticated")
