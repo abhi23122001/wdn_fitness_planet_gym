@@ -1,5 +1,6 @@
 package com.fitness_planet_gym
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -19,7 +20,10 @@ class WorkoutDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.detailMeta).text="$level  •  $duration  •  $count exercises"
         findViewById<TextView>(R.id.detailDescription).text=description
         findViewById<Button>(R.id.beginWorkoutButton).setOnClickListener {
-            Toast.makeText(this,"Workout started — let's train!",Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, WorkoutSessionActivity::class.java).apply {
+                putExtra("title", title)
+                putExtra("count", count)
+            })
         }
     }
 }
