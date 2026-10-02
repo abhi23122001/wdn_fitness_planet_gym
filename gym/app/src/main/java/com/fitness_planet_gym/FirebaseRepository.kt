@@ -8,12 +8,10 @@ class FirebaseRepository {
     private val firestore = FirebaseFirestore.getInstance()
 
     fun saveProfile(profile: MemberProfile, onComplete: (Boolean, String?) -> Unit) {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
+        val uid = auth.currentUser?.uid ?: run {
             onComplete(false, "User is not authenticated")
             return
         }
-
         val data = hashMapOf(
             "uid" to uid,
             "name" to profile.name,
@@ -21,45 +19,61 @@ class FirebaseRepository {
             "heightCm" to profile.heightCm,
             "goal" to profile.goal
         )
-
-        firestore.collection("members").document(uid)
-            .set(data)
+        firestore.collection("members").document(uid).set(data)
             .addOnSuccessListener { onComplete(true, null) }
             .addOnFailureListener { onComplete(false, it.message) }
     }
 
     fun loadProfile(onComplete: (MemberProfile?, String?) -> Unit) {
-        val user = auth.currentUser
-        if (user == null) {
+        val user = auth.currentUser ?: run {
             onComplete(null, "User is not authenticated")
             return
         }
-
-        firestore.collection("members").document(user.uid)
-            .get()
+        firestore.collection("members").document(user.uid).get()
             .addOnSuccessListener { snapshot ->
-                if (!snapshot.exists()) {
-                    onComplete(
-                        MemberProfile(
-                            uid = user.uid,
-                            name = user.displayName.orEmpty()
-                        ),
-                        null
-                    )
-                    return@addOnSuccessListener
-                }
-
                 onComplete(
-                    MemberProfile(
+                    if (snapshot.exists()) MemberProfile(
                         uid = user.uid,
                         name = snapshot.getString("name").orEmpty(),
                         weightKg = snapshot.getString("weightKg").orEmpty(),
                         heightCm = snapshot.getString("heightCm").orEmpty(),
                         goal = snapshot.getString("goal").orEmpty()
-                    ),
+                    ) else MemberProfile(uid = user.uid, name = user.displayName.orEmpty()),
                     null
                 )
             }
             .addOnFailureListener { onComplete(null, it.message) }
+    }
+
+    fun isAttendanceMarkedToday(onComplete: (Boolean, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(false, "User is not authenticated")
+            return
+        }
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+        firestore.collection("members").document(uid)
+            .collection("attendance").document(today).get()
+            .addOnSuccessListener { onComplete(it.exists(), null) }
+            .addOnFailureListener { onComplete(false, it.message) }
+    }
+
+    fun markAttendance(timestamp: Long, onComplete: (Boolean, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(false, "User is not authenticated")
+            return
+        }
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date(timestamp))
+        val displayTime = java.text.SimpleDateFormat("dd MMM yyyy • hh:mm a", java.util.Locale.getDefault()).format(java.util.Date(timestamp))
+        val data = hashMapOf(
+            "uid" to uid,
+            "date" to today,
+            "timestamp" to timestamp,
+            "displayTime" to displayTime,
+            "type" to "gym_attendance"
+        )
+        firestore.collection("members").document(uid)
+            .collection("attendance").document(today).set(data)
+            .addOnSuccessListener { onComplete(true, null) }
+            .addOnFailureListener { onComplete(false, it.message) }
     }
 }
