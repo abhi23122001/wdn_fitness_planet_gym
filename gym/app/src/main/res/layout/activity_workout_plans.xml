@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/fitness_background">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="22dp">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WORKOUT LIBRARY" android:textColor="@color/fitness_mint" android:textSize="12sp" android:textStyle="bold" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Choose your session" android:textColor="@color/fitness_text" android:textSize="28sp" android:textStyle="bold" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Select a plan and start training." android:textColor="@color/fitness_text_muted" android:textSize="14sp" />
+<com.google.android.material.card.MaterialCardView
+            android:id="@+id/workoutPush"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@color/fitness_surface"
+            app:cardCornerRadius="20dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                <TextView android:id="@+id/workoutTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/fitness_text" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/workoutMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:textColor="@color/fitness_mint" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:text="Tap to view exercises →" android:textColor="@color/fitness_text_muted" android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView
+            android:id="@+id/workoutPull"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/fitness_surface"
+            app:cardCornerRadius="20dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                <TextView android:id="@+id/workoutTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/fitness_text" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/workoutMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:textColor="@color/fitness_mint" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:text="Tap to view exercises →" android:textColor="@color/fitness_text_muted" android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView
+            android:id="@+id/workoutLegs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/fitness_surface"
+            app:cardCornerRadius="20dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                <TextView android:id="@+id/workoutTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/fitness_text" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/workoutMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:textColor="@color/fitness_mint" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:text="Tap to view exercises →" android:textColor="@color/fitness_text_muted" android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView
+            android:id="@+id/workoutFullBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/fitness_surface"
+            app:cardCornerRadius="20dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                <TextView android:id="@+id/workoutTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/fitness_text" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/workoutMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:textColor="@color/fitness_mint" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:text="Tap to view exercises →" android:textColor="@color/fitness_text_muted" android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+</LinearLayout></ScrollView>
