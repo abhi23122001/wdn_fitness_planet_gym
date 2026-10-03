@@ -4,6 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import androidx.appcompat.app.AppCompatActivity
 
 class DashboardActivity : AppCompatActivity() {
@@ -12,6 +18,11 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+
+        if (android.os.Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 501)
+        }
+        saveFcmToken()
 
         findViewById<Button>(R.id.communityButton).setOnClickListener {
             startActivity(Intent(this, CommunityActivity::class.java))
@@ -34,6 +45,13 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         loadDashboard()
+    }
+
+    private fun saveFcmToken() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token)
+        }
     }
 
     override fun onResume() {
