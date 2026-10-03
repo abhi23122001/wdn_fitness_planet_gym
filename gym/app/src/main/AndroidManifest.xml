@@ -29,6 +29,7 @@
         <activity android:name=".AdminProgressActivity" android:exported="false" />
         <activity android:name=".AdminReportsActivity" android:exported="false" />
         <activity android:name=".AdminSettingsActivity" android:exported="false" />
+        <activity android:name=".AdminMembershipActivity" android:exported="false" />
 
         <activity
             android:name=".MainActivity"
