@@ -30,7 +30,23 @@ service cloud.firestore {
         allow read, write: if isOwner(uid) || isAdmin();
       }
 
-      match /workouts/{workoutId} {
+      match /communityGroups/{groupId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+        allow update, delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      }
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /workouts/{workoutId} {
         allow read, write: if isOwner(uid) || isAdmin();
       }
 
