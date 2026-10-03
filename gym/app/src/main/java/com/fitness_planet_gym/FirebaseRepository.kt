@@ -2,10 +2,14 @@ package com.fitness_planet_gym
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.graphics.Bitmap
+import java.io.ByteArrayOutputStream
+import com.google.firebase.storage.FirebaseStorage
 
 class FirebaseRepository {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     fun saveProfile(profile: MemberProfile, onComplete: (Boolean, String?) -> Unit) {
         val uid = auth.currentUser?.uid ?: run {
@@ -154,7 +158,26 @@ class FirebaseRepository {
             .addOnFailureListener { onComplete(false, it.message) }
     }
 
-    fun markAttendance(timestamp: Long, onComplete: (Boolean, String?) -> Unit) {
+    fun uploadAttendanceSelfie(bitmap: Bitmap, timestamp: Long, onComplete: (String?, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(null, "User is not authenticated")
+            return
+        }
+        val bytes = ByteArrayOutputStream().apply {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, this)
+        }.toByteArray()
+        val fileName = timestamp.toString() + ".jpg"
+        val ref = storage.reference.child("attendance/selfies/$uid/$fileName")
+        ref.putBytes(bytes)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) throw (task.exception ?: Exception("Selfie upload failed"))
+                ref.downloadUrl
+            }
+            .addOnSuccessListener { onComplete(it.toString(), null) }
+            .addOnFailureListener { onComplete(null, it.message) }
+    }
+
+    fun markAttendance(timestamp: Long, selfieUrl: String?, onComplete: (Boolean, String?) -> Unit) {
         val uid = auth.currentUser?.uid ?: run {
             onComplete(false, "User is not authenticated")
             return
@@ -166,7 +189,8 @@ class FirebaseRepository {
             "date" to today,
             "timestamp" to timestamp,
             "displayTime" to displayTime,
-            "type" to "gym_attendance"
+            "type" to "gym_attendance",
+            "selfieUrl" to (selfieUrl ?: "")
         )
         firestore.collection("members").document(uid)
             .collection("attendance").document(today).set(data)
