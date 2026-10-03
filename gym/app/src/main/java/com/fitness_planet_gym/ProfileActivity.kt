@@ -36,6 +36,9 @@ class ProfileActivity : AppCompatActivity() {
 
         loadFromFirebase()
 
+        findViewById<Button>(R.id.addWeightButton).setOnClickListener { saveWeightEntry() }
+        loadWeightHistory()
+
         saveButton.setOnClickListener {
             saveProfile()
         }
@@ -63,6 +66,43 @@ class ProfileActivity : AppCompatActivity() {
                     status.text = "OFFLINE PROFILE"
                     if (!error.isNullOrBlank()) {
                         Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun saveWeightEntry() {
+        val value = weight.text?.toString()?.trim().orEmpty()
+        if (value.toDoubleOrNull() == null || value.toDouble() <= 0) {
+            weight.error = "Enter a valid weight"
+            return
+        }
+        findViewById<Button>(R.id.addWeightButton).isEnabled = false
+        status.text = "SAVING WEIGHT…"
+        firebaseRepository.saveWeightEntry(value) { success, error ->
+            runOnUiThread {
+                findViewById<Button>(R.id.addWeightButton).isEnabled = true
+                if (success) {
+                    status.text = "WEIGHT ENTRY SAVED ✓"
+                    loadWeightHistory()
+                } else {
+                    Toast.makeText(this, error ?: "Unable to save weight", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun loadWeightHistory() {
+        firebaseRepository.loadWeightHistory { history, _ ->
+            runOnUiThread {
+                val historyText = findViewById<TextView>(R.id.weightHistory)
+                if (history.isEmpty()) {
+                    historyText.text = "No weight entries yet."
+                } else {
+                    val format = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault())
+                    historyText.text = history.joinToString("\n") { entry ->
+                        entry.first + " kg  •  " + format.format(java.util.Date(entry.second))
                     }
                 }
             }
