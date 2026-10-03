@@ -54,6 +54,10 @@ class AdminDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, AdminMembershipActivity::class.java))
         }
 
+        findViewById<Button>(R.id.paymentButton).setOnClickListener {
+            startActivity(Intent(this, AdminPaymentActivity::class.java))
+        }
+
         findViewById<Button>(R.id.refreshAdminButton).setOnClickListener {
             loadStats()
         }
