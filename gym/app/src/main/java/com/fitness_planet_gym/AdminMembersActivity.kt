@@ -126,6 +126,15 @@ class AdminMembersActivity : AppCompatActivity() {
             box.addView(title)
             box.addView(email)
             box.addView(uid)
+            card.setOnClickListener {
+                startActivity(
+                    android.content.Intent(this, AdminMemberDetailsActivity::class.java)
+                        .putExtra("uid", item.uid)
+                        .putExtra("name", item.name)
+                        .putExtra("email", item.email)
+                )
+            }
+
             card.addView(box)
             membersContainer.addView(card)
         }
