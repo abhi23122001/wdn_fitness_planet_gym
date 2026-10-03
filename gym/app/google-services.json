@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "17831377713",
+    "project_id": "fiteness-planet-gym",
+    "storage_bucket": "fiteness-planet-gym.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17831377713:android:5c5d8d8501d14439d98e10",
+        "android_client_info": {
+          "package_name": "com.fitness_planet_gym"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI_GS7P23NHxi6_WV1jDwLvTSF3faOmoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
