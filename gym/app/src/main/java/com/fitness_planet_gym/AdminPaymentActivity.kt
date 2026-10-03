@@ -11,6 +11,7 @@ class AdminPaymentActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private lateinit var container: LinearLayout
     private var selectedUid: String? = null
+    private var selectedMembershipFee = 0.0
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -44,7 +45,10 @@ class AdminPaymentActivity : AppCompatActivity() {
     private fun selectMember(uid: String) {
         selectedUid = uid
         findViewById<TextView>(R.id.selectedPaymentMember).text = "Selected: " + uid
-        loadSummary(uid)
+        db.collection("members").document(uid).get().addOnSuccessListener { doc ->
+            selectedMembershipFee = doc.getDouble("fee") ?: 0.0
+            loadSummary(uid)
+        }.addOnFailureListener { loadSummary(uid) }
     }
 
     private fun loadSummary(uid: String) {
@@ -52,7 +56,9 @@ class AdminPaymentActivity : AppCompatActivity() {
             .addOnSuccessListener { snap ->
                 var paid = 0.0
                 snap.documents.forEach { paid += it.getDouble("amount") ?: 0.0 }
-                findViewById<TextView>(R.id.paymentSummary).text = "Total paid: ₹" + String.format(Locale.US, "%.2f", paid) + " • Records: " + snap.size()
+                val due = (selectedMembershipFee - paid).coerceAtLeast(0.0)
+                val status = when { selectedMembershipFee <= 0.0 -> "MEMBERSHIP FEE NOT SET"; paid >= selectedMembershipFee -> "PAID"; paid > 0.0 -> "PARTIAL"; else -> "DUE" }
+                findViewById<TextView>(R.id.paymentSummary).text = "Fee: ₹" + String.format(Locale.US, "%.2f", selectedMembershipFee) + " • Paid: ₹" + String.format(Locale.US, "%.2f", paid) + " • Due: ₹" + String.format(Locale.US, "%.2f", due) + " • " + status
             }
     }
 
@@ -72,7 +78,8 @@ class AdminPaymentActivity : AppCompatActivity() {
     }
 
     private fun clearForm(resetMember: Boolean = true) {
-        if (resetMember) { selectedUid = null; findViewById<TextView>(R.id.selectedPaymentMember).text = "No member selected"; findViewById<TextView>(R.id.paymentSummary).text = "Total paid: ₹0.00 • Records: 0" }
+        if (resetMember) { selectedUid = null; findViewById<TextView>(R.id.selectedPaymentMember).text = "No member selected"; selectedMembershipFee = 0.0
+            findViewById<TextView>(R.id.paymentSummary).text = "Fee: ₹0.00 • Paid: ₹0.00 • Due: ₹0.00 • NO MEMBER" }
         findViewById<EditText>(R.id.paymentAmount).text.clear()
         findViewById<EditText>(R.id.paymentDate).text.clear()
         findViewById<EditText>(R.id.paymentMode).text.clear()
