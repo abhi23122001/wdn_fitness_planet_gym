@@ -57,6 +57,37 @@ class FirebaseRepository {
             .addOnFailureListener { onComplete(false, it.message) }
     }
 
+    fun saveWeightEntry(weightKg: String, onComplete: (Boolean, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(false, "User is not authenticated")
+            return
+        }
+        val now = System.currentTimeMillis()
+        val data = hashMapOf("weightKg" to weightKg, "timestamp" to now)
+        firestore.collection("members").document(uid).collection("weightHistory").add(data)
+            .addOnSuccessListener { onComplete(true, null) }
+            .addOnFailureListener { onComplete(false, it.message) }
+    }
+
+    fun loadWeightHistory(onComplete: (List<Pair<String, Long>>, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(emptyList(), "User is not authenticated")
+            return
+        }
+        firestore.collection("members").document(uid).collection("weightHistory")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(10).get()
+            .addOnSuccessListener { snapshot ->
+                val history = snapshot.documents.mapNotNull { doc ->
+                    val weight = doc.getString("weightKg") ?: return@mapNotNull null
+                    val time = doc.getLong("timestamp") ?: 0L
+                    weight to time
+                }
+                onComplete(history, null)
+            }
+            .addOnFailureListener { onComplete(emptyList(), it.message) }
+    }
+
     fun loadDashboardStats(onComplete: (Int, Int, Int, String?) -> Unit) {
         val uid = auth.currentUser?.uid ?: run {
             onComplete(0, 0, 0, "User is not authenticated")
