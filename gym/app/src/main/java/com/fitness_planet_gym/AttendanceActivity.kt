@@ -28,6 +28,7 @@ class AttendanceActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var dateTimeText: TextView
     private lateinit var markButton: Button
+    private var capturedBitmap: Bitmap? = null
     private val firebaseRepository = FirebaseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +58,7 @@ class AttendanceActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             val bitmap = data?.extras?.get("data") as? Bitmap ?: return
+            capturedBitmap = bitmap
             selfiePreview.setImageBitmap(bitmap)
             selfiePreview.tag = "captured"
             statusText.text = "Selfie captured. Tap Mark Attendance."
@@ -74,7 +76,22 @@ class AttendanceActivity : AppCompatActivity() {
         statusText.text = "SAVING ATTENDANCE…"
 
         val nowMillis = System.currentTimeMillis()
-        firebaseRepository.markAttendance(nowMillis) { success, error ->
+        val bitmap = capturedBitmap
+        if (bitmap == null) {
+            markButton.isEnabled = true
+            statusText.text = "SELFIE REQUIRED"
+            return
+        }
+        firebaseRepository.uploadAttendanceSelfie(bitmap, nowMillis) { selfieUrl, uploadError ->
+            if (selfieUrl == null) {
+                runOnUiThread {
+                    markButton.isEnabled = true
+                    statusText.text = "SELFIE UPLOAD FAILED"
+                    Toast.makeText(this, uploadError ?: "Unable to upload selfie", Toast.LENGTH_LONG).show()
+                }
+                return@uploadAttendanceSelfie
+            }
+            firebaseRepository.markAttendance(nowMillis, selfieUrl) { success, error ->
             runOnUiThread {
                 if (success) {
                     val now = SimpleDateFormat("dd MMM yyyy • hh:mm a", Locale.getDefault()).format(Date(nowMillis))
@@ -93,6 +110,7 @@ class AttendanceActivity : AppCompatActivity() {
                     Toast.makeText(this, error ?: "Unable to save attendance", Toast.LENGTH_LONG).show()
                 }
             }
+        }
         }
     }
 
