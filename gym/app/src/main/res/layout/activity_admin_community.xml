@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/fitness_background">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="COMMUNITY &amp; NOTIFICATIONS" android:textColor="@color/fitness_text" android:textSize="25sp" android:textStyle="bold"/>
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="CREATE COMMUNITY GROUP" android:textColor="@color/fitness_mint" android:textStyle="bold"/>
+<EditText android:id="@+id/groupName" android:layout_width="match_parent" android:layout_height="52dp" android:hint="Group name (e.g. Morning Batch)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+<Button android:id="@+id/createGroupButton" android:layout_width="match_parent" android:layout_height="50dp" android:backgroundTint="@color/fitness_mint" android:text="CREATE GROUP" android:textColor="@color/fitness_dark" android:textStyle="bold"/>
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="SEND NOTIFICATION" android:textColor="@color/fitness_mint" android:textStyle="bold"/>
+<EditText android:id="@+id/notificationTitle" android:layout_width="match_parent" android:layout_height="52dp" android:hint="Notification title" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+<EditText android:id="@+id/notificationBody" android:layout_width="match_parent" android:layout_height="100dp" android:gravity="top" android:hint="Notification message" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+<Button android:id="@+id/sendNotificationButton" android:layout_width="match_parent" android:layout_height="50dp" android:backgroundTint="@color/fitness_mint" android:text="PUBLISH NOTIFICATION" android:textColor="@color/fitness_dark" android:textStyle="bold"/>
+</LinearLayout>
+</ScrollView>
