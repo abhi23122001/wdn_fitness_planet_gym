@@ -33,6 +33,7 @@
         <activity android:name=".AdminSettingsActivity" android:exported="false" />
         <activity android:name=".AdminMembershipActivity" android:exported="false" />
         <activity android:name=".AdminPaymentActivity" android:exported="false" />
+        <activity android:name=".PaymentHistoryActivity" android:exported="false" />
         <activity android:name=".AdminCommunityActivity" android:exported="false" />
         <activity android:name=".CommunityActivity" android:exported="false" />
         <activity android:name=".NotificationsActivity" android:exported="false" />
