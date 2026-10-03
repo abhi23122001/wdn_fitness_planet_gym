@@ -5,5 +5,6 @@ data class MemberProfile(
     val name: String = "",
     val weightKg: String = "",
     val heightCm: String = "",
-    val goal: String = ""
+    val goal: String = "",
+    val photoUrl: String = ""
 )
