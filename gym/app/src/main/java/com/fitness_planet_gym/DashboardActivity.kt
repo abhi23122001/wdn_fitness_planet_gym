@@ -13,6 +13,13 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        findViewById<Button>(R.id.communityButton).setOnClickListener {
+            startActivity(Intent(this, CommunityActivity::class.java))
+        }
+        findViewById<Button>(R.id.notificationsButton).setOnClickListener {
+            startActivity(Intent(this, NotificationsActivity::class.java))
+        }
+
         findViewById<Button>(R.id.profileButton).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
