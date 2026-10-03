@@ -209,6 +209,8 @@
                 android:stateListAnimator="@null" />
         </LinearLayout>
 
+        <Button android:id="@+id/paymentHistoryButton" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="14dp" android:backgroundTint="@color/fitness_surface_2" android:text="PAYMENT HISTORY" android:textColor="@color/fitness_text" android:textStyle="bold" android:stateListAnimator="@null" />
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
