@@ -21,6 +21,7 @@
         <activity android:name=".WorkoutSessionActivity" android:exported="false" />
         <activity android:name=".WorkoutPlansActivity" android:exported="false" />
         <activity android:name=".DashboardActivity" android:exported="false" />
+        <activity android:name=".AdminDashboardActivity" android:exported="false" />
 
         <activity
             android:name=".MainActivity"
