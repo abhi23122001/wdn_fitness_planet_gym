@@ -9,6 +9,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ImageView
+import android.graphics.BitmapFactory
+import android.view.ViewGroup
 import com.google.firebase.storage.FirebaseStorage
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -112,7 +114,9 @@ class AdminAttendanceActivity : AppCompatActivity() {
         dialog.setContentView(image)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
-        com.bumptech.glide.Glide.with(this).load(url).into(image)
+        FirebaseStorage.getInstance().getReferenceFromUrl(url).getBytes(5L * 1024L * 1024L)
+            .addOnSuccessListener { bytes -> image.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.size)) }
+            .addOnFailureListener { Toast.makeText(this, "Unable to load selfie", Toast.LENGTH_SHORT).show() }
     }
 
     private fun render(query: String) {
