@@ -23,9 +23,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (getSharedPreferences("fitness_planet", MODE_PRIVATE).getBoolean("logged_in", false)) {
+        val prefs = getSharedPreferences("fitness_planet", MODE_PRIVATE)
+        val loggedIn = prefs.getBoolean("logged_in", false)
+        val savedRole = prefs.getString("user_role", null)
+
+        if (loggedIn && !savedRole.isNullOrBlank()) {
             openDashboard()
             return
+        }
+
+        if (loggedIn && savedRole.isNullOrBlank()) {
+            prefs.edit().clear().apply()
         }
 
         setContentView(R.layout.activity_main)
