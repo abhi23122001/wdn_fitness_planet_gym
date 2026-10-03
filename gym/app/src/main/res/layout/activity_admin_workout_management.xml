@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_width="match_parent" android:layout_height="match_parent"
+ android:orientation="vertical" android:background="@color/fitness_background" android:padding="18dp">
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="WORKOUT MANAGEMENT" android:textColor="@color/fitness_text" android:textSize="25sp" android:textStyle="bold"/>
+ <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+   <EditText android:id="@+id/workoutTitle" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Workout title" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+   <EditText android:id="@+id/workoutCategory" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Category (Push/Pull/Legs)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+   <EditText android:id="@+id/workoutLevel" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Level (Beginner/Intermediate)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+   <EditText android:id="@+id/workoutDuration" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Duration (e.g. 45 min)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+   <EditText android:id="@+id/workoutExercises" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Exercises count" android:inputType="number" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+   <EditText android:id="@+id/workoutDescription" android:layout_width="match_parent" android:layout_height="90dp" android:gravity="top" android:hint="Description" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+   <Button android:id="@+id/saveWorkoutButton" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="10dp" android:text="SAVE WORKOUT" android:backgroundTint="@color/fitness_mint" android:textColor="@color/fitness_dark"/>
+   <Button android:id="@+id/clearWorkoutButton" android:layout_width="match_parent" android:layout_height="50dp" android:text="CLEAR FORM" android:textColor="@color/fitness_text"/>
+   <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="SAVED WORKOUTS • Tap a workout to edit" android:textColor="@color/fitness_text_muted" android:textStyle="bold"/>
+   <LinearLayout android:id="@+id/workoutContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="10dp"/>
+  </LinearLayout>
+ </ScrollView>
+</LinearLayout>
