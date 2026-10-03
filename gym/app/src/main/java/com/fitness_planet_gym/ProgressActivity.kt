@@ -2,6 +2,8 @@ package com.fitness_planet_gym
 
 import android.os.Bundle
 import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,6 +26,9 @@ class ProgressActivity : AppCompatActivity() {
                 val change = findViewById<TextView>(R.id.weightChange)
                 val weightHistory = findViewById<TextView>(R.id.weightHistoryProgress)
                 val workoutHistory = findViewById<TextView>(R.id.workoutHistory)
+                findViewById<TextView>(R.id.totalWorkoutsProgress).text = workouts.size.toString()
+                findViewById<TextView>(R.id.attendanceProgress).text = "Loading..."
+                loadAttendanceAndMembership()
 
                 if (weights.isNotEmpty()) {
                     val first = weights.first().first.toDoubleOrNull()
@@ -54,6 +59,21 @@ class ProgressActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun loadAttendanceAndMembership() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        db.collection("members").document(uid).collection("attendance").get().addOnSuccessListener { attendance ->
+            findViewById<TextView>(R.id.attendanceProgress).text = attendance.size().toString()
+        }
+        db.collection("members").document(uid).get().addOnSuccessListener { member ->
+            val fee = member.getDouble("fee") ?: 0.0
+            val end = member.getString("endDate").orEmpty()
+            findViewById<TextView>(R.id.membershipProgress).text =
+                if (fee > 0) "₹" + String.format(Locale.US, "%.0f", fee) + " • Valid till " + end.ifBlank { "Not set" }
+                else "Membership not set"
         }
     }
 }
