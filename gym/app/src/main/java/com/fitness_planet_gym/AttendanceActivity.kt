@@ -41,6 +41,7 @@ class AttendanceActivity : AppCompatActivity() {
         markButton = findViewById(R.id.markAttendanceButton)
 
         findViewById<Button>(R.id.captureSelfieButton).setOnClickListener { openCamera() }
+        findViewById<Button>(R.id.attendanceAnalyticsButton).setOnClickListener { startActivity(Intent(this, AttendanceAnalyticsActivity::class.java)) }
         markButton.setOnClickListener { markAttendance() }
         loadTodayStatus()
     }
