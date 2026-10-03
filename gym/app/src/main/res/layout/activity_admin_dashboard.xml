@@ -176,6 +176,17 @@
             android:stateListAnimator="@null" />
 
         <Button
+            android:id="@+id/attendanceButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/fitness_mint"
+            android:text="ATTENDANCE MANAGEMENT"
+            android:textColor="@color/fitness_dark"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+
+        <Button
             android:id="@+id/refreshAdminButton"
             android:layout_width="match_parent"
             android:layout_height="50dp"
