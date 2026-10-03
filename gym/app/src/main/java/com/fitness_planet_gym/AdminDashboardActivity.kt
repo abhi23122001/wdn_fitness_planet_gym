@@ -42,6 +42,10 @@ class AdminDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, DashboardActivity::class.java))
         }
 
+        findViewById<Button>(R.id.reportsButton).setOnClickListener {
+            startActivity(Intent(this, AdminReportsActivity::class.java))
+        }
+
         findViewById<Button>(R.id.refreshAdminButton).setOnClickListener {
             loadStats()
         }
