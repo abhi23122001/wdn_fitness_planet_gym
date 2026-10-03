@@ -47,6 +47,19 @@ class DashboardActivity : AppCompatActivity() {
         loadDashboard()
     }
 
+    private fun loadMembershipSummary() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        FirebaseFirestore.getInstance().collection("members").document(uid).get().addOnSuccessListener { member ->
+            val fee = member.getDouble("fee") ?: 0.0
+            val end = member.getString("endDate").orEmpty()
+            FirebaseFirestore.getInstance().collection("members").document(uid).collection("payments").get().addOnSuccessListener { payments ->
+                val paid = payments.documents.sumOf { it.getDouble("amount") ?: 0.0 }
+                val due = (fee - paid).coerceAtLeast(0.0)
+                findViewById<TextView>(R.id.membershipSummary).text = if (fee > 0.0) "Membership: ₹${String.format(java.util.Locale.US, "%.0f", fee)} • Paid: ₹${String.format(java.util.Locale.US, "%.0f", paid)} • Due: ₹${String.format(java.util.Locale.US, "%.0f", due)}\nValid till: ${end.ifBlank { "Not set" }}" else "Membership not set"
+            }
+        }
+    }
+
     private fun saveFcmToken() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
