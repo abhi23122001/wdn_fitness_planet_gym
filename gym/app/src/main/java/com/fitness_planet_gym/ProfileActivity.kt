@@ -1,6 +1,9 @@
 package com.fitness_planet_gym
 
 import android.os.Bundle
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -15,6 +18,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var goal: TextInputEditText
     private lateinit var status: TextView
     private lateinit var saveButton: Button
+    private lateinit var profileImage: android.widget.ImageView
     private val firebaseRepository = FirebaseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +32,7 @@ class ProfileActivity : AppCompatActivity() {
         goal = findViewById(R.id.profileGoal)
         status = findViewById(R.id.saveStatus)
         saveButton = findViewById(R.id.saveProfileButton)
+        profileImage = findViewById(R.id.profileImage)
 
         name.setText(prefs.getString("member_name", "Member"))
         weight.setText(prefs.getString("weight", ""))
@@ -35,12 +40,40 @@ class ProfileActivity : AppCompatActivity() {
         goal.setText(prefs.getString("goal", ""))
 
         loadFromFirebase()
+        firebaseRepository.loadMemberAvatar { bitmap ->
+            if (bitmap != null) runOnUiThread { profileImage.setImageBitmap(bitmap) }
+        }
+
+        findViewById<Button>(R.id.changePhotoButton).setOnClickListener {
+            startActivityForResult(android.content.Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 2001)
+        }
 
         findViewById<Button>(R.id.addWeightButton).setOnClickListener { saveWeightEntry() }
         loadWeightHistory()
 
         saveButton.setOnClickListener {
             saveProfile()
+        }
+    }
+
+    @Deprecated("Use Activity Result API when this screen is modernized.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 2001 && resultCode == RESULT_OK) {
+            val uri: Uri = data?.data ?: return
+            val bitmap = contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+            if (bitmap == null) {
+                Toast.makeText(this, "Unable to read photo", Toast.LENGTH_SHORT).show()
+                return
+            }
+            profileImage.setImageBitmap(bitmap)
+            status.text = "UPLOADING PHOTO…"
+            firebaseRepository.uploadMemberAvatar(bitmap) { url, error ->
+                runOnUiThread {
+                    if (url != null) status.text = "PROFILE PHOTO UPDATED ✓"
+                    else Toast.makeText(this, error ?: "Upload failed", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
