@@ -1,7 +1,6 @@
 package com.fitness_planet_gym
 
 import android.content.Intent
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -24,6 +23,8 @@ class WorkoutDetailActivity : AppCompatActivity() {
             startActivity(Intent(this, WorkoutSessionActivity::class.java).apply {
                 putExtra("title", title)
                 putExtra("count", count)
+                putExtra("workoutType", title.substringBefore(" •").trim())
+                putExtra("duration", duration)
             })
         }
     }
