@@ -88,6 +88,35 @@ class FirebaseRepository {
             .addOnFailureListener { onComplete(emptyList(), it.message) }
     }
 
+    fun loadProgressData(onComplete: (List<Pair<String, Long>>, List<Pair<String, Long>>, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(emptyList(), emptyList(), "User is not authenticated")
+            return
+        }
+        val ref = firestore.collection("members").document(uid)
+        ref.collection("weightHistory")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
+            .limit(50).get()
+            .addOnSuccessListener { weights ->
+                val weightList = weights.documents.mapNotNull { doc ->
+                    val value = doc.getString("weightKg") ?: return@mapNotNull null
+                    value to (doc.getLong("timestamp") ?: 0L)
+                }
+                ref.collection("workouts")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(20).get()
+                    .addOnSuccessListener { workouts ->
+                        val workoutList = workouts.documents.mapNotNull { doc ->
+                            val title = doc.getString("title") ?: return@mapNotNull null
+                            title to (doc.getLong("timestamp") ?: 0L)
+                        }
+                        onComplete(weightList, workoutList, null)
+                    }
+                    .addOnFailureListener { onComplete(weightList, emptyList(), it.message) }
+            }
+            .addOnFailureListener { onComplete(emptyList(), emptyList(), it.message) }
+    }
+
     fun loadDashboardStats(onComplete: (Int, Int, Int, String?) -> Unit) {
         val uid = auth.currentUser?.uid ?: run {
             onComplete(0, 0, 0, "User is not authenticated")
