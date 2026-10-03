@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import com.google.android.material.textfield.TextInputEditText
 import androidx.appcompat.app.AppCompatActivity
 
@@ -49,6 +50,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.addWeightButton).setOnClickListener { saveWeightEntry() }
+        findViewById<Button>(R.id.accountInfoButton).setOnClickListener { showAccountInfo() }
         loadWeightHistory()
 
         saveButton.setOnClickListener {
@@ -77,6 +79,16 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    private fun showAccountInfo() {
+        val user = FirebaseAuth.getInstance().currentUser
+        val email = user?.email ?: "Not available"
+        val uid = user?.uid ?: "Not available"
+        android.app.AlertDialog.Builder(this)
+            .setTitle("ACCOUNT INFORMATION")
+            .setMessage("Name: " + name.text?.toString().orEmpty() + "\nEmail: " + email + "\nAccount ID: " + uid)
+            .setPositiveButton("OK", null)
+            .show()
+    }
     private fun loadFromFirebase() {
         status.text = "SYNCING PROFILE…"
         firebaseRepository.loadProfile { profile, error ->
