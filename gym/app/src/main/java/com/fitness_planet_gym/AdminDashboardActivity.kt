@@ -30,6 +30,10 @@ class AdminDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, AdminAttendanceActivity::class.java))
         }
 
+        findViewById<Button>(R.id.workoutManagementButton).setOnClickListener {
+            startActivity(Intent(this, AdminWorkoutManagementActivity::class.java))
+        }
+
         findViewById<Button>(R.id.memberDashboardButton).setOnClickListener {
             startActivity(Intent(this, DashboardActivity::class.java))
         }
