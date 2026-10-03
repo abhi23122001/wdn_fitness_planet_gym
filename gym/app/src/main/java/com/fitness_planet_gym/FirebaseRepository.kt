@@ -3,6 +3,7 @@ package com.fitness_planet_gym
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import java.io.ByteArrayOutputStream
 import com.google.firebase.storage.FirebaseStorage
 
@@ -47,6 +48,36 @@ class FirebaseRepository {
                 )
             }
             .addOnFailureListener { onComplete(null, it.message) }
+    }
+
+    fun uploadMemberAvatar(bitmap: Bitmap, onComplete: (String?, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(null, "User is not authenticated")
+            return
+        }
+        val bytes = ByteArrayOutputStream().apply {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 88, this)
+        }.toByteArray()
+        val ref = storage.reference.child("profile/$uid/avatar.jpg")
+        ref.putBytes(bytes)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) throw (task.exception ?: Exception("Avatar upload failed"))
+                ref.downloadUrl
+            }
+            .addOnSuccessListener { url -> onComplete(url.toString(), null) }
+            .addOnFailureListener { onComplete(null, it.message) }
+    }
+
+    fun loadMemberAvatar(onComplete: (Bitmap?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: run {
+            onComplete(null)
+            return
+        }
+        storage.reference.child("profile/$uid/avatar.jpg").getBytes(5L * 1024L * 1024L)
+            .addOnSuccessListener { bytes ->
+                onComplete(BitmapFactory.decodeByteArray(bytes, 0, bytes.size))
+            }
+            .addOnFailureListener { onComplete(null) }
     }
 
     fun isAttendanceMarkedToday(onComplete: (Boolean, String?) -> Unit) {
