@@ -19,6 +19,9 @@ class DashboardActivity : AppCompatActivity() {
         findViewById<Button>(R.id.attendanceButton).setOnClickListener {
             startActivity(Intent(this, AttendanceActivity::class.java))
         }
+        findViewById<Button>(R.id.progressButton).setOnClickListener {
+            startActivity(Intent(this, ProgressActivity::class.java))
+        }
         findViewById<Button>(R.id.startWorkoutButton).setOnClickListener {
             startActivity(Intent(this, WorkoutPlansActivity::class.java))
         }
