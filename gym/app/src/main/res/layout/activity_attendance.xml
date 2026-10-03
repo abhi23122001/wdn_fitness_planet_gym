@@ -66,6 +66,16 @@
             android:textColor="@color/fitness_text_muted"
             android:textSize="13sp" />
         <Button
+            android:id="@+id/attendanceAnalyticsButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/fitness_surface_2"
+            android:text="VIEW ATTENDANCE ANALYTICS"
+            android:textColor="@color/fitness_text"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+        <Button
             android:id="@+id/markAttendanceButton"
             android:layout_width="match_parent"
             android:layout_height="56dp"
