@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/fitness_background" android:padding="18dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="ADMIN SETTINGS" android:textColor="@color/fitness_text"
+        android:textSize="25sp" android:textStyle="bold"/>
+    <TextView android:id="@+id/adminSettingsEmail" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:textColor="@color/fitness_text_muted" android:textSize="13sp"/>
+    <EditText android:id="@+id/adminSettingsName" android:layout_width="match_parent"
+        android:layout_height="52dp" android:layout_marginTop="18dp"
+        android:hint="Admin name" android:textColor="@color/fitness_text"
+        android:textColorHint="@color/fitness_text_muted"/>
+    <Button android:id="@+id/saveAdminSettingsButton" android:layout_width="match_parent"
+        android:layout_height="50dp" android:layout_marginTop="10dp"
+        android:text="SAVE ADMIN PROFILE" android:backgroundTint="@color/fitness_mint"
+        android:textColor="@color/fitness_dark"/>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="24dp" android:text="SECURITY"
+        android:textColor="@color/fitness_text" android:textSize="18sp" android:textStyle="bold"/>
+    <EditText android:id="@+id/newAdminPassword" android:layout_width="match_parent"
+        android:layout_height="52dp" android:layout_marginTop="10dp"
+        android:hint="New password (min 6 characters)" android:inputType="textPassword"
+        android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+    <Button android:id="@+id/changePasswordButton" android:layout_width="match_parent"
+        android:layout_height="50dp" android:layout_marginTop="10dp"
+        android:text="CHANGE PASSWORD" android:textColor="@color/fitness_text"/>
+</LinearLayout>
