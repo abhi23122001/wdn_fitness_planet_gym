@@ -65,6 +65,10 @@
                 </com.google.android.material.textfield.TextInputLayout>
                 <Button android:id="@+id/addWeightButton" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="10dp" android:backgroundTint="@color/fitness_surface_2" android:text="ADD WEIGHT ENTRY" android:textColor="@color/fitness_mint" android:textStyle="bold" android:stateListAnimator="@null" />
                 <TextView android:id="@+id/weightHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="No weight entries yet." android:textColor="@color/fitness_text_muted" android:textSize="13sp" />
+                <Button android:id="@+id/accountInfoButton" android:layout_width="match_parent"
+                    android:layout_height="50dp" android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/fitness_surface_2" android:text="ACCOUNT INFORMATION"
+                    android:textColor="@color/fitness_mint" android:textStyle="bold" android:stateListAnimator="@null" />
                 <Button android:id="@+id/saveProfileButton" android:layout_width="match_parent"
                     android:layout_height="54dp" android:layout_marginTop="18dp"
                     android:backgroundTint="@color/fitness_mint" android:text="SAVE PROFILE"
