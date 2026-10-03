@@ -26,6 +26,7 @@
         <activity android:name=".AdminMemberDetailsActivity" android:exported="false" />
         <activity android:name=".AdminAttendanceActivity" android:exported="false" />
         <activity android:name=".AdminWorkoutManagementActivity" android:exported="false" />
+        <activity android:name=".AdminProgressActivity" android:exported="false" />
 
         <activity
             android:name=".MainActivity"
