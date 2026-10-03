@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_width="match_parent" android:layout_height="match_parent"
+ android:orientation="vertical" android:background="@color/fitness_background" android:padding="18dp">
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="MEMBERSHIP MANAGEMENT" android:textColor="@color/fitness_text" android:textSize="25sp" android:textStyle="bold"/>
+ <TextView android:id="@+id/selectedMember" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="No member selected" android:textColor="@color/fitness_mint" android:textSize="13sp"/>
+ <EditText android:id="@+id/membershipPlan" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="14dp" android:hint="Plan (Monthly / Quarterly / Yearly)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+ <EditText android:id="@+id/membershipFee" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Fee" android:inputType="numberDecimal" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+ <EditText android:id="@+id/membershipStart" android:layout_width="match_parent" android:layout_height="50dp" android:hint="Start date (YYYY-MM-DD)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+ <EditText android:id="@+id/membershipEnd" android:layout_width="match_parent" android:layout_height="50dp" android:hint="End date (YYYY-MM-DD)" android:textColor="@color/fitness_text" android:textColorHint="@color/fitness_text_muted"/>
+ <Button android:id="@+id/saveMembershipButton" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="10dp" android:text="SAVE MEMBERSHIP" android:backgroundTint="@color/fitness_mint" android:textColor="@color/fitness_dark"/>
+ <Button android:id="@+id/clearMembershipButton" android:layout_width="match_parent" android:layout_height="50dp" android:text="CLEAR" android:textColor="@color/fitness_text"/>
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="SELECT MEMBER" android:textColor="@color/fitness_text_muted" android:textStyle="bold"/>
+ <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="10dp">
+  <LinearLayout android:id="@+id/membershipContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+ </ScrollView>
+</LinearLayout>
