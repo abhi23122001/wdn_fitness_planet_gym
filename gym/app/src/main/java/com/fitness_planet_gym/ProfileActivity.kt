@@ -45,7 +45,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.changePhotoButton).setOnClickListener {
-            startActivityForResult(android.content.Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 2001)
+            startActivityForResult(android.content.Intent(android.content.Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 2001)
         }
 
         findViewById<Button>(R.id.addWeightButton).setOnClickListener { saveWeightEntry() }
