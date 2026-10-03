@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/fitness_background" android:padding="18dp">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="PAYMENT HISTORY" android:textColor="@color/fitness_text" android:textSize="25sp" android:textStyle="bold"/>
+<TextView android:id="@+id/paymentHistorySummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Loading..." android:textColor="@color/fitness_mint" android:textStyle="bold"/>
+<ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="14dp"><LinearLayout android:id="@+id/paymentHistoryContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/></ScrollView>
+</LinearLayout>
