@@ -30,7 +30,20 @@ service cloud.firestore {
         allow read, write: if isOwner(uid) || isAdmin();
       }
 
-      match /communityGroups/{groupId} {
+      match /workouts/{workoutId} {
+        allow read, write: if isOwner(uid) || isAdmin();
+      }
+
+      match /weightHistory/{entryId} {
+        allow read, write: if isOwner(uid) || isAdmin();
+      }
+
+      match /payments/{paymentId} {
+        allow read, write: if isOwner(uid) || isAdmin();
+      }
+    }
+
+    match /communityGroups/{groupId} {
       allow read: if signedIn();
       allow create, update, delete: if isAdmin();
 
@@ -44,15 +57,6 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read: if signedIn();
       allow create, update, delete: if isAdmin();
-    }
-
-    match /workouts/{workoutId} {
-        allow read, write: if isOwner(uid) || isAdmin();
-      }
-
-      match /weightHistory/{entryId} {
-        allow read, write: if isOwner(uid) || isAdmin();
-      }
     }
 
     match /workouts/{workoutId} {
