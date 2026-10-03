@@ -32,6 +32,27 @@
                 <TextView android:id="@+id/weightChange" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="—" android:textColor="@color/fitness_text" android:textSize="22sp" android:textStyle="bold"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:orientation="horizontal">
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="105dp" android:layout_weight="1" android:layout_marginEnd="5dp" app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="18dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/totalWorkoutsProgress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/fitness_mint" android:textSize="23sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WORKOUTS" android:textColor="@color/fitness_text_muted" android:textSize="10sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="105dp" android:layout_weight="1" android:layout_marginStart="5dp" app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="18dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/attendanceProgress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/fitness_mint" android:textSize="23sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ATTENDANCE" android:textColor="@color/fitness_text_muted" android:textSize="10sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="18dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="18dp" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MEMBERSHIP" android:textColor="@color/fitness_mint" android:textSize="11sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/membershipProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:text="Loading..." android:textColor="@color/fitness_text" android:textSize="15sp" android:textStyle="bold"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
         <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="18dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="18dp" android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WEIGHT HISTORY" android:textColor="@color/fitness_mint" android:textSize="11sp" android:textStyle="bold"/>
