@@ -211,7 +211,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Progress module will connect to your member profile."
+                    android:text="Track body weight, workouts and your fitness journey."
                     android:textColor="@color/fitness_text_muted"
                     android:textSize="12sp" />
             </LinearLayout>
