@@ -19,6 +19,21 @@
             android:layout_height="wrap_content" android:layout_marginTop="22dp"
             app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="22dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center" android:orientation="vertical" android:padding="18dp">
+                <ImageView android:id="@+id/profileImage" android:layout_width="112dp" android:layout_height="112dp"
+                    android:src="@mipmap/ic_launcher" android:scaleType="centerCrop"
+                    android:contentDescription="Profile photo" />
+                <Button android:id="@+id/changePhotoButton" android:layout_width="wrap_content"
+                    android:layout_height="48dp" android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/fitness_surface_2" android:text="CHANGE PROFILE PHOTO"
+                    android:textColor="@color/fitness_mint" android:textStyle="bold" android:stateListAnimator="@null" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="22dp"
+            app:cardBackgroundColor="@color/fitness_surface" app:cardCornerRadius="22dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="vertical" android:padding="18dp">
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
