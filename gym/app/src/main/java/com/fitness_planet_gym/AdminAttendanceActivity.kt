@@ -8,6 +8,8 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ImageView
+import com.google.firebase.storage.FirebaseStorage
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -25,7 +27,8 @@ class AdminAttendanceActivity : AppCompatActivity() {
         val name: String,
         val email: String,
         val uid: String,
-        val timestamp: Long
+        val timestamp: Long,
+        val selfieUrl: String
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,8 +78,9 @@ class AdminAttendanceActivity : AppCompatActivity() {
                         .addOnSuccessListener { snapshot ->
                             snapshot.documents.forEach { doc ->
                                 val timestamp = doc.getLong("timestamp") ?: return@forEach
+                                val selfieUrl = doc.getString("selfieUrl").orEmpty()
                                 loaded.add(
-                                    AttendanceRow(member.second, member.third, member.first, timestamp)
+                                    AttendanceRow(member.second, member.third, member.first, timestamp, selfieUrl)
                                 )
                             }
                             completed++
@@ -97,6 +101,18 @@ class AdminAttendanceActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Could not load attendance", Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun showSelfie(url: String) {
+        val dialog = android.app.Dialog(this)
+        val image = ImageView(this).apply {
+            adjustViewBounds = true
+            setPadding(16, 16, 16, 16)
+        }
+        dialog.setContentView(image)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+        com.bumptech.glide.Glide.with(this).load(url).into(image)
     }
 
     private fun render(query: String) {
@@ -153,6 +169,14 @@ class AdminAttendanceActivity : AppCompatActivity() {
                 setPadding(0, 5, 0, 0)
             }
 
+            val selfieButton = Button(this).apply {
+                text = if (record.selfieUrl.isBlank()) "NO SELFIE" else "VIEW SELFIE"
+                isEnabled = record.selfieUrl.isNotBlank()
+                setOnClickListener { if (record.selfieUrl.isNotBlank()) showSelfie(record.selfieUrl) }
+                setTextColor(resources.getColor(R.color.fitness_dark, theme))
+                backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.fitness_mint, theme))
+            }
+
             val email = TextView(this).apply {
                 text = if (record.email.isBlank()) "Email not available" else record.email
                 setTextColor(resources.getColor(R.color.fitness_text_muted, theme))
@@ -163,6 +187,7 @@ class AdminAttendanceActivity : AppCompatActivity() {
             box.addView(name)
             box.addView(time)
             box.addView(email)
+            box.addView(selfieButton)
             card.addView(box)
             container.addView(card)
         }
