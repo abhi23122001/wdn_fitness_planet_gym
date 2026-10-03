@@ -26,6 +26,10 @@ class AdminDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, AdminMembersActivity::class.java))
         }
 
+        findViewById<Button>(R.id.attendanceButton).setOnClickListener {
+            startActivity(Intent(this, AdminAttendanceActivity::class.java))
+        }
+
         findViewById<Button>(R.id.memberDashboardButton).setOnClickListener {
             startActivity(Intent(this, DashboardActivity::class.java))
         }
