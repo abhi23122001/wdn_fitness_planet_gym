@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,7 +74,19 @@ class MainActivity : AppCompatActivity() {
             val name = nameInput.text?.toString()?.trim().orEmpty().ifBlank { "Member" }
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
-                    saveSession(name, email)
+                    val uid = auth.currentUser?.uid.orEmpty()
+                    FirebaseFirestore.getInstance().collection("users").document(uid)
+                        .set(
+                            mapOf(
+                                "uid" to uid,
+                                "role" to "member",
+                                "name" to name,
+                                "email" to email
+                            )
+                        )
+                        .addOnCompleteListener {
+                            saveSession(name, email, "member")
+                        }
                 }
                 .addOnFailureListener {
                     loginButton.isEnabled = true
@@ -82,8 +95,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
-                    val name = auth.currentUser?.displayName?.ifBlank { null } ?: "Member"
-                    saveSession(name, email)
+                    loadRoleAndOpen()
                 }
                 .addOnFailureListener {
                     loginButton.isEnabled = true
@@ -92,17 +104,53 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveSession(name: String, email: String) {
+    private fun loadRoleAndOpen() {
+        val user = auth.currentUser ?: run {
+            loginButton.isEnabled = true
+            Toast.makeText(this, "Login session not found", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        FirebaseFirestore.getInstance().collection("users").document(user.uid).get()
+            .addOnSuccessListener { document ->
+                val role = document.getString("role")?.trim()?.lowercase().orEmpty()
+                val name = document.getString("name")
+                    ?: user.displayName?.takeIf { it.isNotBlank() }
+                    ?: "Member"
+
+                saveSession(name, user.email.orEmpty(), if (role == "admin") "admin" else "member")
+            }
+            .addOnFailureListener {
+                loginButton.isEnabled = true
+                Toast.makeText(
+                    this,
+                    "Login succeeded, but role could not be loaded. Check Firestore permissions.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+
+    private fun saveSession(name: String, email: String, role: String) {
         getSharedPreferences("fitness_planet", MODE_PRIVATE).edit()
             .putBoolean("logged_in", true)
             .putString("member_name", name)
             .putString("member_email", email)
+            .putString("user_role", role)
             .apply()
         openDashboard()
     }
 
     private fun openDashboard() {
-        startActivity(Intent(this, DashboardActivity::class.java))
+        val prefs = getSharedPreferences("fitness_planet", MODE_PRIVATE)
+        val role = prefs.getString("user_role", "member")?.lowercase()
+
+        val intent = if (role == "admin") {
+            Intent(this, AdminDashboardActivity::class.java)
+        } else {
+            Intent(this, DashboardActivity::class.java)
+        }
+
+        startActivity(intent)
         finish()
     }
 }
