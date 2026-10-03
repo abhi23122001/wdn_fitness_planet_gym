@@ -121,23 +121,43 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseFirestore.getInstance().collection("users").document(user.uid).get()
             .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    auth.signOut()
+                    loginButton.isEnabled = true
+                    Toast.makeText(
+                        this,
+                        "Login succeeded, but your users profile was not found in Firestore.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnSuccessListener
+                }
+
                 val role = document.getString("role")?.trim()?.lowercase().orEmpty()
+                if (role != "admin" && role != "member") {
+                    auth.signOut()
+                    loginButton.isEnabled = true
+                    Toast.makeText(
+                        this,
+                        "Invalid user role in Firestore. Set role to admin or member.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnSuccessListener
+                }
+
                 val name = document.getString("name")
                     ?: user.displayName?.takeIf { it.isNotBlank() }
                     ?: "Member"
 
-                saveSession(name, user.email.orEmpty(), if (role == "admin") "admin" else "member")
+                saveSession(name, user.email.orEmpty(), role)
             }
-            .addOnFailureListener {
+            .addOnFailureListener { error ->
                 loginButton.isEnabled = true
                 Toast.makeText(
                     this,
-                    "Login succeeded, but role could not be loaded. Check Firestore permissions.",
+                    "Firestore role read failed: " + (error.message ?: "permission denied"),
                     Toast.LENGTH_LONG
                 ).show()
             }
-    }
-
     private fun saveSession(name: String, email: String, role: String) {
         getSharedPreferences("fitness_planet", MODE_PRIVATE).edit()
             .putBoolean("logged_in", true)
