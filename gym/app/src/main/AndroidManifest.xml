@@ -16,6 +16,7 @@
 
         <activity android:name=".WorkoutDetailActivity" android:exported="false" />
         <activity android:name=".ProfileActivity" android:exported="false" />
+        <activity android:name=".ProgressActivity" android:exported="false" />
         <activity android:name=".AttendanceActivity" android:exported="false" />
         <activity android:name=".WorkoutSessionActivity" android:exported="false" />
         <activity android:name=".WorkoutPlansActivity" android:exported="false" />
