@@ -216,6 +216,17 @@
                     android:text="Track body weight, workouts and your fitness journey."
                     android:textColor="@color/fitness_text_muted"
                     android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/progressButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="@color/fitness_mint"
+                    android:text="VIEW PROGRESS"
+                    android:textColor="@color/fitness_dark"
+                    android:textStyle="bold"
+                    android:stateListAnimator="@null" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
